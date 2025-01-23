@@ -1,3 +1,7 @@
+"""
+This script is used to test if the OpenCLIP installation is working correctly.
+"""
+
 import torch
 from PIL import Image
 
