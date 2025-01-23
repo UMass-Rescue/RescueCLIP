@@ -23,6 +23,7 @@ apple_DFN5B_CLIP_ViT_H_14_384 = OpenClipConfig(
     model_name="hf-hub:apple/DFN5B-CLIP-ViT-H-14-384", checkpoint_name=None
 )
 
+
 def load_inference_clip_model(config: OpenClipConfig, device: str, cache_dir: str = CACHE_DIR):
     model, _, preprocess_image = open_clip.create_model_and_transforms(
         config.model_name, pretrained=config.checkpoint_name, device=device, cache_dir=cache_dir

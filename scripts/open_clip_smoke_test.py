@@ -1,7 +1,10 @@
 import torch
 from PIL import Image
 
-from rescueclip.open_clip import load_inference_clip_model, apple_DFN5B_CLIP_ViT_H_14_384
+from rescueclip.open_clip import (
+    apple_DFN5B_CLIP_ViT_H_14_384,
+    load_inference_clip_model,
+)
 
 TEST_IMAGE_PATH = "scripts/small-test-data/CLIP.png"
 
