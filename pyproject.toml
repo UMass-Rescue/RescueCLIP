@@ -1,0 +1,57 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rescueclip"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+# [pytest]
+# testpaths = "tests"
+
+# [tool.pytest.ini_options]
+# addopts = [
+#   "--import-mode=importlib",
+# ]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+multi_line_output = 3
+profile = "black"
+
+[project]
+authors = [
+  {name = "Atharva Kale", email = "aukale@umass.edu"},
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "python-dotenv>=1.0.1",
+  "clip@git+https://github.com/openai/CLIP.git#egg=main",
+  "open_clip_torch>=2.24.0",
+  "tqdm>=4.67.1",
+]
+
+description = "Generate, store and query image embeddings locally"
+name = "rescueclip"
+readme = "README.md"
+requires-python = ">=3.12"
+version = "0.0.1"
+
+[project.optional-dependencies]
+dev = [
+  "black>=23.11.0",
+  "isort>=5.12.0",
+  "pytest>=8.3.4",
+  "mypy>=1.14.1",
+  "pytest-cov>=6.0.0",
+]
