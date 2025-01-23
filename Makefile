@@ -37,8 +37,9 @@ run_experiment2_load_each_image_and_encode_immediately:
 	done
 
 get_kaggle_data:
-	curl -L -o ~/Downloads/cat-and-dog.zip \
+	curl -L -o archive.zip \
 		https://www.kaggle.com/api/v1/datasets/download/tongpython/cat-and-dog
+	unzip -d data archive.zip &> /dev/null
 
 memory_profile:
 	python -m memory_profiler scripts/clip_encoding_performance/clip_embed_images_experiment.py
