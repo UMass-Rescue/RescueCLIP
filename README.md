@@ -3,3 +3,4 @@ conda init # for bash, or conda init zsh
 conda activate rescueCLIP
 pip install -e .
 pip install -e ".[dev]"
+

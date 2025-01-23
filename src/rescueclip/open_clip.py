@@ -36,4 +36,5 @@ def load_inference_clip_model(config: OpenClipModelConfig, device: str, cache_di
     model.eval()  # model in train mode by default, impacts some models with BatchNorm or stochastic depth active
     tokenizer = open_clip.get_tokenizer(config.tokenizer_model_name, cache_dir=cache_dir)
 
+    print("Loaded model:", config.model_name)
     return model, preprocess_image, tokenizer
