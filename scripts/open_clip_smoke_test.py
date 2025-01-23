@@ -1,9 +1,9 @@
 import torch
 from PIL import Image
-import open_clip
 
-TEST_IMAGE_PATH = "src/rescueclip/small-test-data/CLIP.png"
-CACHE_DIR = "./.cache/clip"
+from rescueclip.open_clip import load_inference_clip_model, apple_DFN5B_CLIP_ViT_H_14_384
+
+TEST_IMAGE_PATH = "scripts/small-test-data/CLIP.png"
 
 device = "cpu"
 if torch.cuda.is_available():
@@ -13,11 +13,7 @@ if torch.backends.mps.is_available():
 
 print("Using device:", device)
 
-model, _, preprocess = open_clip.create_model_and_transforms(
-    "hf-hub:apple/DFN5B-CLIP-ViT-H-14-384", device=device, cache_dir=CACHE_DIR
-)
-model.eval()  # model in train mode by default, impacts some models with BatchNorm or stochastic depth active
-tokenizer = open_clip.get_tokenizer("ViT-H-14", cache_dir=CACHE_DIR)
+model, preprocess, tokenizer = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
 
 image = preprocess(Image.open(TEST_IMAGE_PATH)).unsqueeze(0).to(device)  # type: ignore
 text = tokenizer(["a diagram", "a dog", "a cat"]).to(device)
