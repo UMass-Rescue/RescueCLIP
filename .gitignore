@@ -29,3 +29,7 @@ archive.zip
 
 # CLIP
 .cache
+
+# Profiling
+profile.pstats
+open_clip_smoke_test.py.lprof
