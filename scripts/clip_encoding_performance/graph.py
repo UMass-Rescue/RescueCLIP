@@ -41,7 +41,7 @@ sns.scatterplot(
 )
 
 # Customize the plot
-plt.title("Grouped Dot Plot: Batch Size vs. Time Taken (Averaged)", fontsize=16)
+plt.title("Plot: Batch Size vs. Time Taken (Averaged over Trials)", fontsize=16)
 plt.xlabel("Batch Size", fontsize=14)
 plt.ylabel("Average Time Taken (seconds)", fontsize=14)
 # plt.xscale("log")  # Use log scale for batch size if necessary
