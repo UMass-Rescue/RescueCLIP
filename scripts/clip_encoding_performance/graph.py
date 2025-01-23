@@ -44,8 +44,14 @@ sns.scatterplot(
 plt.title("Plot: Batch Size vs. Time Taken (Averaged over Trials)", fontsize=16)
 plt.xlabel("Batch Size", fontsize=14)
 plt.ylabel("Average Time Taken (seconds)", fontsize=14)
-# plt.xscale("log")  # Use log scale for batch size if necessary
-plt.xticks(sorted(df["batch_size"].unique()), fontsize=12)
+
+# Adjust x-axis label rotation and spacing
+plt.xticks(
+    ticks=sorted(df["batch_size"].unique()),  # Unique batch sizes on x-axis
+    rotation=45,  # Rotate labels 45 degrees
+    fontsize=12,  # Font size of labels
+    ha="right"    # Align labels to the right
+)
 plt.legend(title="Function", fontsize=12)
 plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
 plt.tight_layout()

@@ -28,6 +28,11 @@ apple_DFN5B_CLIP_ViT_H_14_384 = OpenClipModelConfig(
     tokenizer_model_name="ViT-H-14",
 )
 
+laion_CLIP_ViT_bigG_14_laion2B_39B_b160k = OpenClipModelConfig(
+    model_name="hf-hub:laion/CLIP-ViT-bigG-14-laion2B-39B-b160k",
+    checkpoint_name=None,
+    tokenizer_model_name="hf-hub:laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
+)
 
 def load_inference_clip_model(config: OpenClipModelConfig, device: str, cache_dir: str = CACHE_DIR):
     model, _, preprocess_image = open_clip.create_model_and_transforms(

@@ -66,3 +66,6 @@ load_each_image_and_encode_immediately,832,224.98337197303772
 load_each_image_and_encode_immediately,896,242.55920720100403
 load_each_image_and_encode_immediately,960,258.8419671058655
 load_each_image_and_encode_immediately,1024,278.1426661014557
+load_each_image_and_encode_immediately,224,59.35366082191467
+load_each_image_and_encode_immediately,256,67.69479393959045
+load_each_image_and_encode_immediately,320,85.13941097259521
