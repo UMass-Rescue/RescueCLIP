@@ -22,5 +22,7 @@ services:
       ASYNC_INDEXING: 'true' # If set, Weaviate creates vector indexes asynchronously to the object creation process. This can be useful for importing large amounts of data. (default: false)
       AUTOSCHEMA_ENABLED: 'false'
       DISABLE_TELEMETRY: 'true'
-      ENABLE_API_BASED_MODULES: 'false'
-
+      # ENABLE_API_BASED_MODULES: 'false'
+      CLUSTER_HOSTNAME: 'node1'
+      ENABLE_MODULES: backup-filesystem
+      BACKUP_FILESYSTEM_PATH: /var/lib/weaviate/backups

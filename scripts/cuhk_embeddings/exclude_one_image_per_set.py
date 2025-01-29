@@ -1,26 +1,55 @@
+from rescueclip.logging_config import LOGGING_CONFIG
+import logging.config
+
+logging.config.dictConfig(LOGGING_CONFIG)
+logger = logging.getLogger(__name__)
+import os
 from pathlib import Path
+import shutil
 
 import numpy as np
 import weaviate
 from tqdm import tqdm
 from weaviate.classes.query import Filter
 from weaviate.util import generate_uuid5
-
 from rescueclip import cuhk
-from rescueclip.open_clip import apple_DFN5B_CLIP_ViT_H_14_384
+from rescueclip.open_clip import CUHK_Apple_Collection
 from rescueclip.weaviate import WeaviateClientEnsureReady
+from weaviate.backup import BackupStorage
 
 from .embed_cuhk import Metadata, embed_cuhk_dataset
 
+def delete_backup(backup_id: str):
+    try:
+        shutil.rmtree(Path("weaviate-data/backups") / backup_id)
+    except Exception as e:
+        if not isinstance(e, FileNotFoundError):
+            raise
 
 def experiment(client: weaviate.WeaviateClient):
     INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    COLLECTION_NAME = apple_DFN5B_CLIP_ViT_H_14_384.weaviate_collection_name
-    TOP_K = 5
+    COLLECTION = CUHK_Apple_Collection
+    TOP_K = 20
 
     # Re-embed the entire database just in case -- this is fast if all images are present
-    embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION_NAME)
+    logger.info(f"Re-embedding entire dataset {INPUT_FOLDER}")
+    embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION.name)
+
+    # Make a copy of the collection and use it for the test
+    collection = client.collections.get(COLLECTION.name)
+    backup_id = "backup-for-experiment"
+    logger.info(f"Making a backup of the current database state with backup ID {backup_id}")
+
+    delete_backup(backup_id)
+
+    status = collection.backup.create(
+        backup_id=backup_id,
+        backend=BackupStorage.FILESYSTEM,
+        wait_for_completion=True,
+    )
+    assert status.error is None, "Failed to make a backup of collection %s" % COLLECTION.name
+    logger.info(f"Completed backup: {status.status}")
 
     # Remove one random image from each series
     sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)
@@ -29,12 +58,14 @@ def experiment(client: weaviate.WeaviateClient):
         if len(file_names) > 1:
             images_to_remove.append(Metadata(set_number, np.random.choice(file_names)))
 
-    collection = client.collections.get(COLLECTION_NAME)
     images_to_remove_uuid = [generate_uuid5(image) for image in images_to_remove]
     images_to_remove_vectors = [
         collection.query.fetch_object_by_id(uuid, include_vector=True).vector["embedding"]
         for uuid in images_to_remove_uuid
     ]
+    logger.info(
+        f"Removing {len(images_to_remove_uuid)} vectors from the collection {COLLECTION.name}"
+    )
     result = collection.data.delete_many(where=Filter.by_id().contains_any(images_to_remove_uuid))
 
     assert result.successful == len(
@@ -53,13 +84,25 @@ def experiment(client: weaviate.WeaviateClient):
             # return_metadata=MetadataQuery(distance=True, certainty=True),
         )
         if any(
-            image_metadata.set_number == result.properties.get("set_number") for result in results.objects
+            image_metadata.set_number == result.properties.get("set_number")
+            for result in results.objects
         ):
             sum_found += 1
 
-    print(f"Accuracy: {sum_found/len(test_images)}")
+    logger.info(f"Accuracy: {sum_found/len(test_images)}")
+
+    logger.info(f"Restoring the backup with backup ID {backup_id}")
+    client.collections.delete(COLLECTION.name)
+    status = collection.backup.restore(
+        backup_id=backup_id, backend=BackupStorage.FILESYSTEM, wait_for_completion=True
+    )
+    assert status.error is None, "Failed to restore a backup of collection %s" % COLLECTION.name
+    logger.info("Restored backup")
+
+    delete_backup(backup_id)
 
 
 if __name__ == "__main__":
+    logging.config.dictConfig(LOGGING_CONFIG)
     with WeaviateClientEnsureReady() as client:
         experiment(client)

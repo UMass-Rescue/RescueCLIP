@@ -10,7 +10,6 @@ from weaviate.util import generate_uuid5, get_vector
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
-logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 
 COLLECTION_NAME = "Images"
@@ -89,5 +88,6 @@ def main(client: weaviate.WeaviateClient):
 
 
 if __name__ == "__main__":
+    logging.config.dictConfig(LOGGING_CONFIG)
     with WeaviateClientEnsureReady() as client:
         main(client)

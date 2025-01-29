@@ -13,7 +13,6 @@ from torch import Tensor
 
 from rescueclip.logging_config import LOGGING_CONFIG
 
-logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 
 CACHE_DIR = "./.cache/clip"
@@ -35,14 +34,14 @@ class OpenClipModelConfig:
     model_name: str
     checkpoint_name: Optional[str]
     tokenizer_model_name: str
-    weaviate_collection_name: str
+    weaviate_friendly_model_name: str
 
 
 ViT_B_32 = OpenClipModelConfig(
     model_name="ViT-B-32",
     checkpoint_name="laion2b_s34b_b79k",
     tokenizer_model_name="ViT-B-32",
-    weaviate_collection_name="ViT-B-32",
+    weaviate_friendly_model_name="ViT-B-32",
 )
 
 # https://huggingface.co/apple/DFN5B-CLIP-ViT-H-14-378
@@ -50,14 +49,24 @@ apple_DFN5B_CLIP_ViT_H_14_384 = OpenClipModelConfig(
     model_name="hf-hub:apple/DFN5B-CLIP-ViT-H-14-384",
     checkpoint_name=None,
     tokenizer_model_name="ViT-H-14",
-    weaviate_collection_name="Apple_DFN5B_CLIP_ViT_H_14_384",
+    weaviate_friendly_model_name="Apple_DFN5B_CLIP_ViT_H_14_384",
 )
 
 laion_CLIP_ViT_bigG_14_laion2B_39B_b160k = OpenClipModelConfig(
     model_name="hf-hub:laion/CLIP-ViT-bigG-14-laion2B-39B-b160k",
     checkpoint_name=None,
     tokenizer_model_name="hf-hub:laion/CLIP-ViT-bigG-14-laion2B-39B-b160k",
-    weaviate_collection_name="CLIP_ViT_bigG_14_laion2B_39B_b160k",
+    weaviate_friendly_model_name="CLIP_ViT_bigG_14_laion2B_39B_b160k",
+)
+
+@dataclass
+class CollectionConfig:
+    name: str
+    model_config: OpenClipModelConfig
+
+CUHK_Apple_Collection = CollectionConfig(
+    name=apple_DFN5B_CLIP_ViT_H_14_384.weaviate_friendly_model_name + '_CUHK',
+    model_config=apple_DFN5B_CLIP_ViT_H_14_384
 )
 
 

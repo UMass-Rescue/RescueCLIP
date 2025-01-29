@@ -13,14 +13,13 @@ from weaviate.util import generate_uuid5, get_vector
 from rescueclip.cuhk import get_sets
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.open_clip import (
-    apple_DFN5B_CLIP_ViT_H_14_384,
+    CUHK_Apple_Collection,
     encode_image,
     load_inference_clip_model,
     torch_device,
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
-logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 
 
@@ -88,10 +87,9 @@ def embed_cuhk_dataset(
     device = torch_device()
 
     # Load the model into memory
-    model, preprocess, _ = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
+    model, preprocess, _ = load_inference_clip_model(CUHK_Apple_Collection.model_config, device)
 
     # Ingesting
-    # TODO: add something more to the collection name to tie it to which dataset it was produced from.
     collection = create_or_get_collection(client, collection_name)
 
     with collection.batch.dynamic() as batch:
@@ -117,8 +115,9 @@ def embed_cuhk_dataset(
 
 
 if __name__ == "__main__":
+    logging.config.dictConfig(LOGGING_CONFIG)
     INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    COLLECTION_NAME = apple_DFN5B_CLIP_ViT_H_14_384.weaviate_collection_name + "_CUHK"
+    COLLECTION_NAME = CUHK_Apple_Collection.name
     with WeaviateClientEnsureReady() as client:
         embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION_NAME)
