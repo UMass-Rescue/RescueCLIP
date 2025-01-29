@@ -1,6 +1,6 @@
 SRC = $(wildcard *.py) $(shell find src scripts -type f -name '*.py')
 
-# CLIP Smoke Test
+####### CLIP Smoke Test #######
 open_clip_smoke_test:
 	python scripts/open_clip_smoke_test.py
 
@@ -11,12 +11,12 @@ profile:
 line_profile:
 	kernprof -lv scripts/open_clip_smoke_test.py
 
-# Formatting
+####### Formatting #######
 format:
 	black --line-length 110 $(SRC)
 	isort --profile black $(SRC)
 
-# CLIP Embedding Experiments
+####### CLIP Embedding Experiments #######
 
 clip_embed_images_experiment_single_run:
 	python scripts/clip_encoding_performance/clip_embed_images_experiment.py --batch_size 128 --function load_each_image_and_encode_immediately
