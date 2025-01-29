@@ -1,4 +1,5 @@
 import argparse
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -6,9 +7,7 @@ from scipy.stats import linregress
 
 # Accept the file_path as a command-line argument
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--file_path", type=str, required=True, help="Path to the CSV file containing the data."
-)
+parser.add_argument("--file_path", type=str, required=True, help="Path to the CSV file containing the data.")
 args = parser.parse_args()
 
 # Load the data from the CSV file
@@ -33,7 +32,7 @@ plt.figure(figsize=(12, 8))
 
 # Plot scatter points
 sns.scatterplot(
-    data=grouped_df, # type: ignore
+    data=grouped_df,  # type: ignore
     x="batch_size",
     y="time_taken_secs",
     hue="function",
@@ -55,7 +54,7 @@ for function, group in grouped_df.groupby("function"):
     # Plot the regression line
     x_range = sorted(x)
     y_fit = [slope * xi + intercept for xi in x_range]
-    plt.plot(x_range, y_fit, label=f"{function} (Slope: {slope:.4f})", linestyle="--", color=palette[function]) # type: ignore
+    plt.plot(x_range, y_fit, label=f"{function} (Slope: {slope:.4f})", linestyle="--", color=palette[function])  # type: ignore
 
 # Print the slopes
 for function, slope in slopes.items():
@@ -67,12 +66,7 @@ plt.xlabel("Batch Size", fontsize=14)
 plt.ylabel("Average Time Taken (seconds)", fontsize=14)
 
 # Adjust x-axis label rotation and spacing
-plt.xticks(
-    ticks=sorted(df["batch_size"].unique()),
-    rotation=45,
-    fontsize=12,
-    ha="right"
-)
+plt.xticks(ticks=sorted(df["batch_size"].unique()), rotation=45, fontsize=12, ha="right")
 
 plt.legend(title="Function", fontsize=12)
 plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)

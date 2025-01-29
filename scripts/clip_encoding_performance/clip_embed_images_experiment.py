@@ -13,12 +13,12 @@ from tqdm import tqdm
 from rescueclip.open_clip import (
     ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
+    encode_image,
     load_inference_clip_model,
+    torch_device,
 )
 
 # from memory_profiler import profile
-
-
 
 
 def is_valid_filename(file_name: str) -> bool:
@@ -35,17 +35,6 @@ def is_valid_filename(file_name: str) -> bool:
 
 def should_include_directory_entry(entry: os.DirEntry) -> bool:
     return entry.is_file() and is_valid_filename(entry.name)
-
-
-def torch_device() -> str:
-    device = "cpu"
-    if torch.cuda.is_available():
-        device = "cuda"
-    if torch.backends.mps.is_available():
-        device = "mps"
-
-    print("Using device:", device)
-    return device
 
 
 @profile
@@ -85,8 +74,8 @@ def load_all_the_images_and_then_encode_them_together(
 
 @profile
 def load_each_image_and_encode_immediately(
-    files: list[str],
-    path: str,
+    file_basenames: list[str],
+    base_dir: str,
     device: str,
     model: open_clip.CLIP,
     preprocess: torchvision.transforms.Compose,
@@ -94,16 +83,13 @@ def load_each_image_and_encode_immediately(
     print(f"Loading each image and encoding immediately")
     # Pre-allocate the image embedding tensor
     shape = list(model.modules())[-1].normalized_shape[0]
-    images_features = torch.empty(len(files), shape, device=device)
+    images_features = torch.empty(len(file_basenames), shape, device=device)
     print(f"Pre-allocated image embedding tensor: {images_features.shape}")
 
     # Encode the images
     with torch.no_grad(), torch.amp.autocast(device):  # type: ignore
-        for i, file in tqdm(enumerate(files), total=len(files)):
-            pil_image = Image.open(os.path.join(path, file))
-            image = preprocess(pil_image).unsqueeze(0).to(device)  # type: ignore
-            pil_image.close()
-            images_features[i] = model.encode_image(image)
+        for i, file in tqdm(enumerate(file_basenames), total=len(file_basenames)):
+            images_features[i] = encode_image(base_dir, file, device, model, preprocess)
         print(f"Image features: {images_features.shape}")
 
     return images_features
@@ -134,14 +120,14 @@ def main():
     RESULTS_CSV = args.results_csv
 
     # Load the image file paths
-    path = "data/training_set/dogs"  # contains 4000 images
-    files = os.listdir(path)
-    files = list(filter(is_valid_filename, files))
-    files.sort()
+    base_dir = "data/training_set/dogs"  # contains 4000 images
+    file_basenames = os.listdir(base_dir)
+    file_basenames = list(filter(is_valid_filename, file_basenames))
+    file_basenames.sort()
 
     # Limit the number of files to BATCH_SIZE
-    files = files[:BATCH_SIZE]
-    print(f"Found {len(files)} files in {path}")
+    file_basenames = file_basenames[:BATCH_SIZE]
+    print(f"Found {len(file_basenames)} files in {base_dir}")
 
     # Get the torch device
     device = torch_device()
@@ -161,7 +147,7 @@ def main():
 
     # Run the function
     start = time.time()
-    embeddings = fn(files, path, device, model, preprocess)
+    embeddings = fn(file_basenames, base_dir, device, model, preprocess)
     end = time.time()
     print(f"Time taken for loop: {end - start:.2f}")
     print(f"Embeddings: {embeddings.shape}")

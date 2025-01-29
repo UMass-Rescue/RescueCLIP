@@ -26,6 +26,7 @@ venv/
 # Datasets
 data
 archive.zip
+CUHK-PEDES.tar.gz
 
 # CLIP
 .cache
@@ -33,3 +34,7 @@ archive.zip
 # Profiling
 profile.pstats
 open_clip_smoke_test.py.lprof
+
+# Weaviate
+weaviate-data
+output

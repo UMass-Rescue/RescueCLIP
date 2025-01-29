@@ -39,6 +39,8 @@ dependencies = [
   "clip@git+https://github.com/openai/CLIP.git#egg=main",
   "open_clip_torch>=2.24.0",
   "tqdm>=4.67.1",
+  "weaviate-client>=4.10.4",
+  "pyarrow>=19.0.0"
 ]
 
 description = "Generate, store and query image embeddings locally"

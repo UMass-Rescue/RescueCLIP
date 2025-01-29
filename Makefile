@@ -48,3 +48,30 @@ memory_profile:
 
 graph:
 	python scripts/clip_encoding_performance/graph.py --file_path ./scripts/clip_encoding_performance/clip_embed_images_experiment_MBP_Apple_Model.csv
+
+####### Weaviate #######
+
+weaviate-up:
+	docker-compose up -d
+
+weaviate-script:
+	python scripts/weaviate-health/weaviate_single_vector_insertion_test.py
+
+
+###### CUHK Embeddings ########
+
+generate_cuhk_tar_from_lennie:
+	echo "TODO: generate_cuhk_tar_from_lennie is not implemented yet" && exit 1
+
+untar_cuhk_tar:
+	rm -r data/CUHK-PEDES
+	mkdir -p data/CUHK-PEDES
+	tar -xf CUHK-PEDES.tar.gz -C data/CUHK-PEDES
+
+cuhk_dataset_parquet_to_raw:
+	python scripts/gen_CUKH_embeddings/parse_cuhk_pedes.py \
+		--raw_folder data/CUHK-PEDES/raw \
+		--out_folder data/CUHK-PEDES/out ;
+
+generate_cuhk_embeddings:
+	python scripts/gen_CUKH_embeddings/embed_cuhk.py
