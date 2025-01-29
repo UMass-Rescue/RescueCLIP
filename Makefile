@@ -22,18 +22,21 @@ clip_embed_images_experiment_single_run:
 	python scripts/clip_encoding_performance/clip_embed_images_experiment.py --batch_size 128 --function load_each_image_and_encode_immediately
 
 # batch_sizes := 1 2 4 8 16 32 48 64 96 128 160 176 192
-batch_sizes := 224 256 320 384 448 512 576 640 704 768 832 896 960 1024
+batch_sizes := 1 2 4 8 16 32 48 64 96 128 160 176 192
+# batch_sizes := 224 256 320 384 448 512 576 640 704 768 832 896 960 1024
 
 run_experiment1_load_all_the_images_and_then_encode_them_together:
 	for batch_size in $(batch_sizes); do \
 		python scripts/clip_encoding_performance/clip_embed_images_experiment.py --batch_size $$batch_size \
-			--function load_all_the_images_and_then_encode_them_together; \
+			--function load_all_the_images_and_then_encode_them_together \
+			--results_csv ./scripts/clip_encoding_performance/clip_embed_images_experiment_MBP_Apple_Model.csv ; \
 	done
 
 run_experiment2_load_each_image_and_encode_immediately:
 	for batch_size in $(batch_sizes); do \
 		python scripts/clip_encoding_performance/clip_embed_images_experiment.py --batch_size $$batch_size \
-			--function load_each_image_and_encode_immediately; \
+			--function load_each_image_and_encode_immediately \
+			--results_csv ./scripts/clip_encoding_performance/clip_embed_images_experiment_MBP_Apple_Model.csv ; \
 	done
 
 get_kaggle_data:
@@ -45,4 +48,4 @@ memory_profile:
 	python -m memory_profiler scripts/clip_encoding_performance/clip_embed_images_experiment.py
 
 graph:
-	python scripts/clip_encoding_performance/graph.py
+	python scripts/clip_encoding_performance/graph.py --file_path ./scripts/clip_encoding_performance/clip_embed_images_experiment_MBP_Apple_Model.csv

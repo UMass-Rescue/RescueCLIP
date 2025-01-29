@@ -123,9 +123,15 @@ def main():
         required=True,
         help="Function to use for image processing.",
     )
+    parser.add_argument(
+        "--results_csv",
+        type=str,
+        help="Path to the CSV file to store the results.",
+    )
     args = parser.parse_args()
     BATCH_SIZE = args.batch_size
     FUNCTION_ENV = args.function
+    RESULTS_CSV = args.results_csv
 
     # Load the image file paths
     path = "data/training_set/dogs"  # contains 4000 images
@@ -161,7 +167,7 @@ def main():
     print(f"Embeddings: {embeddings.shape}")
 
     # Save results to CSV
-    results_csv = Path("./scripts/clip_encoding_performance/clip_embed_images_experiment.csv")
+    results_csv = Path(RESULTS_CSV)
     pre_existing = results_csv.exists()
     with open(results_csv, "a") as f:
         if not pre_existing:
