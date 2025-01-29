@@ -69,9 +69,9 @@ untar_cuhk_tar:
 	tar -xf CUHK-PEDES.tar.gz -C data/CUHK-PEDES
 
 cuhk_dataset_parquet_to_raw:
-	python scripts/gen_cuhk_embeddings/parse_cuhk_pedes.py \
+	python scripts/cuhk_embeddings/parse_cuhk_pedes.py \
 		--raw_folder data/CUHK-PEDES/raw \
 		--out_folder data/CUHK-PEDES/out ;
 
 generate_cuhk_embeddings:
-	python scripts/gen_cuhk_embeddings/embed_cuhk.py
+	python scripts/cuhk_embeddings/embed_cuhk.py

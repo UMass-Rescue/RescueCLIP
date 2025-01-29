@@ -78,7 +78,7 @@ def add_to_batch(
 def main(client: weaviate.WeaviateClient):
     # Constants
     INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
-    STOPS_FILE = Path("./scripts/gen_cuhk_embeddings/cuhk_stops.txt")
+    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
 
     # Retrieving sets
     sets = get_sets(INPUT_FOLDER, STOPS_FILE)
