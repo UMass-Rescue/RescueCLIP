@@ -75,3 +75,9 @@ cuhk_dataset_parquet_to_raw:
 
 generate_cuhk_embeddings:
 	python scripts/cuhk_embeddings/embed_cuhk.py
+
+query_cuhk:
+	python scripts/cuhk_embeddings/query_cuhk.py
+
+exclude_one_image_per_set:
+	python -m scripts.cuhk_embeddings.exclude_one_image_per_set

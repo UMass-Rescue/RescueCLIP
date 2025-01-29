@@ -17,6 +17,7 @@ class WeaviateClientEnsureReady:
     with WeaviateClientEnsureReady() as client:
         main_function(client)
     """
+
     def __init__(self):
         self.client = None
 

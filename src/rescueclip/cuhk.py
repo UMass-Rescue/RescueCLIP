@@ -5,7 +5,7 @@ from collections import defaultdict
 from pathlib import Path
 
 
-def get_sets(in_folder: Path, stops_file: Path, debug=False) -> dict[int, list[str]]:
+def get_sets(in_folder: str | Path, stops_file: str | Path, debug=False) -> dict[int, list[str]]:
     """
     Returns a dictionary mapping set number to a list of file base names.
     """

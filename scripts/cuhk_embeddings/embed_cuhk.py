@@ -75,13 +75,11 @@ def add_to_batch(
     )
 
 
-def main(client: weaviate.WeaviateClient):
-    # Constants
-    INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
-    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-
+def embed_cuhk_dataset(
+    client: weaviate.WeaviateClient, input_folder: Path, stops_file: Path, collection_name: str
+):
     # Retrieving sets
-    sets = get_sets(INPUT_FOLDER, STOPS_FILE)
+    sets = get_sets(input_folder, stops_file)
     n_images = sum(len(sett) for sett in sets.values())
     logger.info("Retrieved %s sets and %s images", len(sets), n_images)
 
@@ -93,9 +91,8 @@ def main(client: weaviate.WeaviateClient):
     model, preprocess, _ = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
 
     # Ingesting
-    collection = create_or_get_collection(
-        client, apple_DFN5B_CLIP_ViT_H_14_384.weaviate_collection_name
-    )
+    # TODO: add something more to the collection name to tie it to which dataset it was produced from.
+    collection = create_or_get_collection(client, collection_name)
 
     with collection.batch.dynamic() as batch:
         for i, basenames in tqdm(sets.items(), total=len(sets)):
@@ -107,7 +104,7 @@ def main(client: weaviate.WeaviateClient):
                         batch,
                         uuid,
                         metadata,
-                        encode_image(INPUT_FOLDER, basename, device, model, preprocess),
+                        encode_image(input_folder, basename, device, model, preprocess),
                     )
             if batch.number_errors > 10:
                 logger.error("Batch import stopped due to excessive errors.")
@@ -120,5 +117,8 @@ def main(client: weaviate.WeaviateClient):
 
 
 if __name__ == "__main__":
+    INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
+    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
+    COLLECTION_NAME = apple_DFN5B_CLIP_ViT_H_14_384.weaviate_collection_name + "_CUHK"
     with WeaviateClientEnsureReady() as client:
-        main(client)
+        embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION_NAME)
