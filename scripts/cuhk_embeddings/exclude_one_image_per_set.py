@@ -19,7 +19,7 @@ def experiment(client: weaviate.WeaviateClient):
     COLLECTION_NAME = apple_DFN5B_CLIP_ViT_H_14_384.weaviate_collection_name
     TOP_K = 5
 
-    # Re-embed the entire database just in case -- this is fast
+    # Re-embed the entire database just in case -- this is fast if all images are present
     embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION_NAME)
 
     # Remove one random image from each series
