@@ -21,7 +21,6 @@ format:
 clip_embed_images_experiment_single_run:
 	python scripts/clip_encoding_performance/clip_embed_images_experiment.py --batch_size 128 --function load_each_image_and_encode_immediately
 
-# batch_sizes := 1 2 4 8 16 32 48 64 96 128 160 176 192
 batch_sizes := 1 2 4 8 16 32 48 64 96 128 160 176 192
 # batch_sizes := 224 256 320 384 448 512 576 640 704 768 832 896 960 1024
 
