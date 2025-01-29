@@ -14,7 +14,7 @@ from rescueclip.open_clip import (
 
 @profile
 def main():
-    TEST_IMAGE_PATH = "scripts/small-test-data/CLIP.png"
+    TEST_IMAGE_PATH = "scripts/small_test_data/CLIP.png"
 
     device = "cpu"
     if torch.cuda.is_available():
@@ -60,7 +60,7 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 ==============================================================
     14                                           @profile
     15                                           def main():
-    16         1          1.0      1.0      0.0      TEST_IMAGE_PATH = "scripts/small-test-data/CLIP.png"
+    16         1          1.0      1.0      0.0      TEST_IMAGE_PATH = "scripts/small_test_data/CLIP.png"
     17
     18         1          0.0      0.0      0.0      device = "cpu"
     19         1          7.0      7.0      0.0      if torch.cuda.is_available():

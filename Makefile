@@ -55,7 +55,7 @@ weaviate-up:
 	docker-compose up -d
 
 weaviate-script:
-	python scripts/weaviate-health/weaviate_single_vector_insertion_test.py
+	python scripts/weaviate_health/weaviate_single_vector_insertion_test.py
 
 
 ###### CUHK Embeddings ########
@@ -69,9 +69,9 @@ untar_cuhk_tar:
 	tar -xf CUHK-PEDES.tar.gz -C data/CUHK-PEDES
 
 cuhk_dataset_parquet_to_raw:
-	python scripts/gen_CUKH_embeddings/parse_cuhk_pedes.py \
+	python scripts/gen_cuhk_embeddings/parse_cuhk_pedes.py \
 		--raw_folder data/CUHK-PEDES/raw \
 		--out_folder data/CUHK-PEDES/out ;
 
 generate_cuhk_embeddings:
-	python scripts/gen_CUKH_embeddings/embed_cuhk.py
+	python scripts/gen_cuhk_embeddings/embed_cuhk.py
