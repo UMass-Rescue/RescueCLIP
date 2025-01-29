@@ -1,23 +1,25 @@
-from rescueclip.logging_config import LOGGING_CONFIG
 import logging.config
+
+from rescueclip.logging_config import LOGGING_CONFIG
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
-import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import numpy as np
 import weaviate
 from tqdm import tqdm
+from weaviate.backup import BackupStorage
 from weaviate.classes.query import Filter
 from weaviate.util import generate_uuid5
+
 from rescueclip import cuhk
 from rescueclip.open_clip import CUHK_Apple_Collection
 from rescueclip.weaviate import WeaviateClientEnsureReady
-from weaviate.backup import BackupStorage
 
 from .embed_cuhk import Metadata, embed_cuhk_dataset
+
 
 def delete_backup(backup_id: str):
     try:
@@ -25,6 +27,7 @@ def delete_backup(backup_id: str):
     except Exception as e:
         if not isinstance(e, FileNotFoundError):
             raise
+
 
 def experiment(client: weaviate.WeaviateClient):
     INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
@@ -63,9 +66,7 @@ def experiment(client: weaviate.WeaviateClient):
         collection.query.fetch_object_by_id(uuid, include_vector=True).vector["embedding"]
         for uuid in images_to_remove_uuid
     ]
-    logger.info(
-        f"Removing {len(images_to_remove_uuid)} vectors from the collection {COLLECTION.name}"
-    )
+    logger.info(f"Removing {len(images_to_remove_uuid)} vectors from the collection {COLLECTION.name}")
     result = collection.data.delete_many(where=Filter.by_id().contains_any(images_to_remove_uuid))
 
     assert result.successful == len(
@@ -84,8 +85,7 @@ def experiment(client: weaviate.WeaviateClient):
             # return_metadata=MetadataQuery(distance=True, certainty=True),
         )
         if any(
-            image_metadata.set_number == result.properties.get("set_number")
-            for result in results.objects
+            image_metadata.set_number == result.properties.get("set_number") for result in results.objects
         ):
             sum_found += 1
 
@@ -106,3 +106,11 @@ if __name__ == "__main__":
     logging.config.dictConfig(LOGGING_CONFIG)
     with WeaviateClientEnsureReady() as client:
         experiment(client)
+
+"""
+(TOP_K, Accuracy) for Apple Model on CUHK dataset
+5, 67
+10, 72
+15, 77,
+20, 81
+"""

@@ -30,9 +30,7 @@ def main(client: weaviate.WeaviateClient):
 
     collection = client.collections.get(COLLECTION.name)
 
-    vector = get_vector(
-        cast(Sequence, encode_image(BASE_DIR, SAMPLE_IMAGE, device, model, preprocess))
-    )
+    vector = get_vector(cast(Sequence, encode_image(BASE_DIR, SAMPLE_IMAGE, device, model, preprocess)))
     result = collection.query.near_vector(
         vector,
         limit=10,

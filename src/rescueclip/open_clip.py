@@ -59,14 +59,16 @@ laion_CLIP_ViT_bigG_14_laion2B_39B_b160k = OpenClipModelConfig(
     weaviate_friendly_model_name="CLIP_ViT_bigG_14_laion2B_39B_b160k",
 )
 
+
 @dataclass
 class CollectionConfig:
     name: str
     model_config: OpenClipModelConfig
 
+
 CUHK_Apple_Collection = CollectionConfig(
-    name=apple_DFN5B_CLIP_ViT_H_14_384.weaviate_friendly_model_name + '_CUHK',
-    model_config=apple_DFN5B_CLIP_ViT_H_14_384
+    name=apple_DFN5B_CLIP_ViT_H_14_384.weaviate_friendly_model_name + "_CUHK",
+    model_config=apple_DFN5B_CLIP_ViT_H_14_384,
 )
 
 
