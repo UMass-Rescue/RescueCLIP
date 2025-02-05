@@ -37,6 +37,7 @@ def experiment(client: weaviate.WeaviateClient):
 
     # Re-embed the entire database just in case -- this is fast if all images are present
     logger.info(f"Re-embedding entire dataset {INPUT_FOLDER}")
+    logger.info(f"This is fast if all images are present")
     embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION.name)
 
     # Make a copy of the collection and use it for the test
@@ -109,8 +110,10 @@ if __name__ == "__main__":
 
 """
 (TOP_K, Accuracy) for Apple Model on CUHK dataset
+1, 31.13377324535093
+2, 55.42891421715657
 5, 67
 10, 72
-15, 77,
+15, 77
 20, 81
 """
