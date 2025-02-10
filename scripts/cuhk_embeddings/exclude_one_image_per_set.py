@@ -1,4 +1,5 @@
 import logging.config
+import os
 
 from rescueclip.logging_config import LOGGING_CONFIG
 
@@ -30,7 +31,7 @@ def delete_backup(backup_id: str):
 
 
 def experiment(client: weaviate.WeaviateClient):
-    INPUT_FOLDER = Path("./data/CUHK-PEDES/out")
+    INPUT_FOLDER = Path(os.environ['CUHK_PEDES_DATASET']) / 'out'
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
     COLLECTION = CUHK_Apple_Collection
     TOP_K = 20

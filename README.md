@@ -12,3 +12,9 @@ See [Makefile](./Makefile) for commands to run experiments.
 # Weaviate
 
 I'm currently using Weaviate as a vector database to store image embeddings. Inspect the [docker-compose.yml](./docker-compose.yml) file for configuration and check the "Weaviate" section in the Makefile
+
+# NVIDIA SMI
+
+```bash
+nvidia-smi -l 1
+```

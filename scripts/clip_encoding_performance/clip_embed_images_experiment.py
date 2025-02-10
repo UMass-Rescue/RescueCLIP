@@ -3,6 +3,7 @@ import os
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
 import open_clip
 import torch
 import torchvision
@@ -120,7 +121,8 @@ def main():
     RESULTS_CSV = args.results_csv
 
     # Load the image file paths
-    base_dir = "data/training_set/dogs"  # contains 4000 images
+    load_dotenv()
+    base_dir = Path(os.environ['CATS_AND_DOGS_TRAINING_DATASET']) / 'dogs'  # contains 4000 images
     file_basenames = os.listdir(base_dir)
     file_basenames = list(filter(is_valid_filename, file_basenames))
     file_basenames.sort()

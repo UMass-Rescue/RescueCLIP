@@ -53,16 +53,13 @@ graph:
 ####### Weaviate #######
 
 weaviate-up:
-	docker-compose up -d
+	./weaviate_up.sh
 
 weaviate-script:
 	python scripts/weaviate_health/weaviate_single_vector_insertion_test.py
 
 
 ###### CUHK Embeddings ########
-
-generate_cuhk_tar_from_lennie:
-	echo "TODO: generate_cuhk_tar_from_lennie is not implemented yet" && exit 1
 
 untar_cuhk_tar:
 	rm -r data/CUHK-PEDES

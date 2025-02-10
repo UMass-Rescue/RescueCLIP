@@ -1,14 +1,15 @@
 import argparse
 import io
 import os
+from pathlib import Path
 
 import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--raw_folder", type=str, default="./data/CUHK-PEDES/raw")
-parser.add_argument("--out_folder", type=str, default="./data/CUHK-PEDES/out")
+parser.add_argument("--raw_folder", type=str, default=Path(os.environ['CUHK_PEDES_DATASET']) / 'raw')
+parser.add_argument("--out_folder", type=str, default=Path(os.environ['CUHK_PEDES_DATASET']) / 'out')
 args = parser.parse_args()
 
 raw_folder = args.raw_folder

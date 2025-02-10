@@ -1,4 +1,6 @@
 import logging.config
+import os
+from pathlib import Path
 from typing import Sequence, cast
 
 import weaviate
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def main(client: weaviate.WeaviateClient):
-    BASE_DIR = "./data/CUHK-PEDES/out"
+    BASE_DIR = Path(os.environ['CUHK_PEDES_DATASET']) / 'out'
     SAMPLE_IMAGE = "0002004.jpg"
     COLLECTION = CUHK_Apple_Collection
 
