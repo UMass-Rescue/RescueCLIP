@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -7,12 +8,11 @@ from scipy.stats import linregress
 
 # Accept the file_path as a command-line argument
 parser = argparse.ArgumentParser()
-parser.add_argument("--file_path", type=str, required=True, help="Path to the CSV file containing the data.")
+parser.add_argument("--file_path", type=Path, required=True, help="Path to the CSV file containing the data.")
 args = parser.parse_args()
 
 # Load the data from the CSV file
-file_path = args.file_path
-file_path = "./scripts/clip_encoding_performance/clip_embed_images_experiment.csv"
+file_path: Path = args.file_path
 df = pd.read_csv(file_path)
 
 # Group by function and batch_size to calculate the mean time
@@ -73,4 +73,4 @@ plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
 plt.tight_layout()
 
 # Show the plot
-plt.show()
+plt.savefig(file_path.with_suffix('.png'))

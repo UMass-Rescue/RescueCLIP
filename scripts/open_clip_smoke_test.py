@@ -39,6 +39,7 @@ def main():
         text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
 
     print("Label probs:", text_probs)  # prints: [[1., 0., 0.]]
+    print("SHOULD PRINT:", "Label probs: tensor([[1.0000e+00, 3.0116e-07, 6.1405e-10]], device='cuda:0')")
 
 
 if __name__ == "__main__":

@@ -82,8 +82,8 @@ def load_each_image_and_encode_immediately(
 ):
     print(f"Loading each image and encoding immediately")
     # Pre-allocate the image embedding tensor
-    shape = list(model.modules())[-1].normalized_shape[0]
-    images_features = torch.empty(len(file_basenames), shape, device=device)
+    shape = list(model.modules())[-1].normalized_shape[0] # type: ignore
+    images_features = torch.empty(len(file_basenames), shape, device=device) # type: ignore
     print(f"Pre-allocated image embedding tensor: {images_features.shape}")
 
     # Encode the images
