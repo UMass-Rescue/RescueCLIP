@@ -77,5 +77,8 @@ generate_cuhk_embeddings:
 query_cuhk:
 	python scripts/cuhk_embeddings/query_cuhk.py
 
-exclude_one_image_per_set:
-	python -m scripts.cuhk_embeddings.exclude_one_image_per_set
+exclude_one_image_per_set_exp:
+	python -m scripts.cuhk_embeddings.exclude_one_image_per_set_exp
+
+##### PDNA #########
+

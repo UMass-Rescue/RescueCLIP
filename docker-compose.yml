@@ -13,12 +13,12 @@ services:
     - 8080:8080
     - 50051:50051
     volumes:
-    - /scratch3/atharva/workspace/programming/RescueCLIP/weaviate-data:/var/lib/weaviate
+    - ${PERSISTENCE_DATA_PATH}:/var/lib/weaviate
     restart: on-failure:0
     environment:
       QUERY_DEFAULTS_LIMIT: 25 # Sets the default number of objects to be returned in a query.
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
-      PERSISTENCE_DATA_PATH: ${PERSISTENCE_DATA_PATH}
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       ASYNC_INDEXING: 'true' # If set, Weaviate creates vector indexes asynchronously to the object creation process. This can be useful for importing large amounts of data. (default: false)
       AUTOSCHEMA_ENABLED: 'false'
       DISABLE_TELEMETRY: 'true'
