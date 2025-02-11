@@ -3,10 +3,10 @@ import os
 import time
 from pathlib import Path
 
-from dotenv import load_dotenv
 import open_clip
 import torch
 import torchvision
+from dotenv import load_dotenv
 from line_profiler import profile
 from PIL import Image
 from tqdm import tqdm
@@ -83,8 +83,8 @@ def load_each_image_and_encode_immediately(
 ):
     print(f"Loading each image and encoding immediately")
     # Pre-allocate the image embedding tensor
-    shape = list(model.modules())[-1].normalized_shape[0] # type: ignore
-    images_features = torch.empty(len(file_basenames), shape, device=device) # type: ignore
+    shape = list(model.modules())[-1].normalized_shape[0]  # type: ignore
+    images_features = torch.empty(len(file_basenames), shape, device=device)  # type: ignore
     print(f"Pre-allocated image embedding tensor: {images_features.shape}")
 
     # Encode the images
@@ -122,7 +122,7 @@ def main():
 
     # Load the image file paths
     load_dotenv()
-    base_dir = Path(os.environ['CATS_AND_DOGS_TRAINING_DATASET']) / 'dogs'  # contains 4000 images
+    base_dir = Path(os.environ["CATS_AND_DOGS_TRAINING_DATASET"]) / "dogs"  # contains 4000 images
     file_basenames = os.listdir(base_dir)
     file_basenames = list(filter(is_valid_filename, file_basenames))
     file_basenames.sort()

@@ -73,4 +73,4 @@ plt.grid(True, which="both", linestyle="--", linewidth=0.5, alpha=0.7)
 plt.tight_layout()
 
 # Show the plot
-plt.savefig(file_path.with_suffix('.png'))
+plt.savefig(file_path.with_suffix(".png"))

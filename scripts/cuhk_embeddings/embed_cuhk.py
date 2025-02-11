@@ -3,9 +3,9 @@ import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from dotenv import load_dotenv
 import torch
 import weaviate
+from dotenv import load_dotenv
 from PIL import Image
 from tqdm import tqdm
 from weaviate.classes.config import Configure, DataType, Property, VectorDistances
@@ -118,7 +118,7 @@ def embed_cuhk_dataset(
 if __name__ == "__main__":
     logging.config.dictConfig(LOGGING_CONFIG)
     load_dotenv()
-    INPUT_FOLDER = Path(os.environ['CUHK_PEDES_DATASET']) / 'out'
+    INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
     COLLECTION_NAME = CUHK_Apple_Collection.name
     with WeaviateClientEnsureReady() as client:
