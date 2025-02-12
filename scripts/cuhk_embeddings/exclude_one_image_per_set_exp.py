@@ -13,12 +13,16 @@ from pathlib import Path
 import numpy as np
 import weaviate
 from tqdm import tqdm
-from weaviate.backup import BackupStorage
 from weaviate.classes.query import Filter
 from weaviate.util import generate_uuid5
 
 from rescueclip import cuhk
-from rescueclip.open_clip import CollectionConfig, CUHK_Apple_Collection
+from rescueclip.open_clip import (
+    CollectionConfig,
+    CUHK_Apple_Collection,
+    CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
+    CUHK_ViT_B_32_Collection,
+)
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
 from .embed_cuhk import Metadata, embed_cuhk_dataset
@@ -66,31 +70,25 @@ def experiment_with_top_k(
         f.write(f"{collection_config.name},{collection_config.model_config.model_name},{top_k},{accuracy}\n")
 
 
+def embed_dataset(
+    client: weaviate.WeaviateClient, input_folder: Path, stops_file: Path, collection_config: CollectionConfig
+):
+    # Re-embed the entire database just in case -- this is fast if all images are present
+    logger.info("Using collection %s", str(collection_config))
+    logger.info(f"Re-embedding entire dataset {input_folder}")
+    logger.info(f"This is fast if all images are present")
+    embed_cuhk_dataset(client, input_folder, stops_file, collection_config)
+
+
 def experiment(client: weaviate.WeaviateClient):
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    COLLECTION = CUHK_Apple_Collection
+    collection_config = CUHK_Apple_Collection
     top_ks = [1, 2, 5, 10, 15, 20]
 
-    # Re-embed the entire database just in case -- this is fast if all images are present
-    logger.info(f"Re-embedding entire dataset {INPUT_FOLDER}")
-    logger.info(f"This is fast if all images are present")
-    embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION.name)
-
-    # Make a copy of the collection and use it for the test
-    collection = client.collections.get(COLLECTION.name)
-    backup_id = "backup-for-experiment"
-    logger.info(f"Making a backup of the current database state with backup ID {backup_id}")
-
-    delete_backup(backup_id)
-
-    status = collection.backup.create(
-        backup_id=backup_id,
-        backend=BackupStorage.FILESYSTEM,
-        wait_for_completion=True,
-    )
-    assert status.error is None, "Failed to make a backup of collection %s" % COLLECTION.name
-    logger.info(f"Completed backup: {status.status}")
+    # Embed the dataset and get the weaviate collection
+    embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
+    collection = client.collections.get(collection_config.name)
 
     # Remove one random image from each series
     sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)
@@ -104,7 +102,7 @@ def experiment(client: weaviate.WeaviateClient):
         collection.query.fetch_object_by_id(uuid, include_vector=True).vector["embedding"]
         for uuid in images_to_remove_uuid
     ]
-    logger.info(f"Removing {len(images_to_remove_uuid)} vectors from the collection {COLLECTION.name}")
+    logger.info(f"Removing {len(images_to_remove_uuid)} vectors from the collection {collection_config.name}")
     result = collection.data.delete_many(where=Filter.by_id().contains_any(images_to_remove_uuid))
 
     assert result.successful == len(
@@ -116,18 +114,9 @@ def experiment(client: weaviate.WeaviateClient):
     test_vectors = images_to_remove_vectors
 
     for top_k in top_ks:
-        experiment_with_top_k(top_k, COLLECTION, collection, test_images, test_vectors)
+        experiment_with_top_k(top_k, collection_config, collection, test_images, test_vectors)
 
-    # Restore the backup
-    logger.info(f"Restoring the backup with backup ID {backup_id}")
-    client.collections.delete(COLLECTION.name)
-    status = collection.backup.restore(
-        backup_id=backup_id, backend=BackupStorage.FILESYSTEM, wait_for_completion=True
-    )
-    assert status.error is None, "Failed to restore a backup of collection %s" % COLLECTION.name
-    logger.info("Restored backup")
-
-    delete_backup(backup_id)
+    embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from weaviate.util import generate_uuid5, get_vector
 from rescueclip.cuhk import get_sets
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.open_clip import (
+    CollectionConfig,
     CUHK_Apple_Collection,
     encode_image,
     load_inference_clip_model,
@@ -76,7 +77,7 @@ def add_to_batch(
 
 
 def embed_cuhk_dataset(
-    client: weaviate.WeaviateClient, input_folder: Path, stops_file: Path, collection_name: str
+    client: weaviate.WeaviateClient, input_folder: Path, stops_file: Path, collection_config: CollectionConfig
 ):
     # Retrieving sets
     sets = get_sets(input_folder, stops_file)
@@ -88,10 +89,10 @@ def embed_cuhk_dataset(
     device = torch_device()
 
     # Load the model into memory
-    model, preprocess, _ = load_inference_clip_model(CUHK_Apple_Collection.model_config, device)
+    model, preprocess, _ = load_inference_clip_model(collection_config.model_config, device)
 
     # Ingesting
-    collection = create_or_get_collection(client, collection_name)
+    collection = create_or_get_collection(client, collection_config.name)
 
     with collection.batch.dynamic() as batch:
         for i, basenames in tqdm(sets.items(), total=len(sets)):
@@ -120,6 +121,6 @@ if __name__ == "__main__":
     load_dotenv()
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    COLLECTION_NAME = CUHK_Apple_Collection.name
+    collection_config = CUHK_Apple_Collection
     with WeaviateClientEnsureReady() as client:
-        embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, COLLECTION_NAME)
+        embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)

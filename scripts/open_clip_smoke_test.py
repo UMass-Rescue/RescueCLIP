@@ -2,12 +2,17 @@
 This script is used to test if the OpenCLIP installation is working correctly.
 """
 
+import logging.config
+
 import torch
 from line_profiler import profile
 from PIL import Image
 
+from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.open_clip import (
+    ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
+    laion_CLIP_ViT_bigG_14_laion2B_39B_b160k,
     load_inference_clip_model,
 )
 
@@ -24,7 +29,8 @@ def main():
 
     print("Using device:", device)
 
-    model, preprocess, tokenizer = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
+    model_config = laion_CLIP_ViT_bigG_14_laion2B_39B_b160k
+    model, preprocess, tokenizer = load_inference_clip_model(model_config, device)
 
     image = preprocess(Image.open(TEST_IMAGE_PATH)).unsqueeze(0).to(device)  # type: ignore
     # images = torch.stack([image, image, image, image, image]).to(device).squeeze(dim=1)
@@ -43,6 +49,7 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.config.dictConfig(LOGGING_CONFIG)
     main()
 
 """

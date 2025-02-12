@@ -36,12 +36,15 @@ class OpenClipModelConfig:
     tokenizer_model_name: str
     weaviate_friendly_model_name: str
 
+    def __str__(self):
+        return f"({self.model_name})"
+
 
 ViT_B_32 = OpenClipModelConfig(
     model_name="ViT-B-32",
     checkpoint_name="laion2b_s34b_b79k",
     tokenizer_model_name="ViT-B-32",
-    weaviate_friendly_model_name="ViT-B-32",
+    weaviate_friendly_model_name="ViT_B_32",
 )
 
 # https://huggingface.co/apple/DFN5B-CLIP-ViT-H-14-378
@@ -65,6 +68,18 @@ class CollectionConfig:
     name: str
     model_config: OpenClipModelConfig
 
+    def __str__(self):
+        return f"\n\tCollection name: {self.name}" + f"\n\tModel Config: {str(self.model_config)}\n"
+
+
+CUHK_ViT_B_32_Collection = CollectionConfig(
+    name=ViT_B_32.weaviate_friendly_model_name + "_CUHK", model_config=ViT_B_32
+)
+
+CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection = CollectionConfig(
+    name=laion_CLIP_ViT_bigG_14_laion2B_39B_b160k.weaviate_friendly_model_name + "_CUHK",
+    model_config=laion_CLIP_ViT_bigG_14_laion2B_39B_b160k,
+)
 
 CUHK_Apple_Collection = CollectionConfig(
     name=apple_DFN5B_CLIP_ViT_H_14_384.weaviate_friendly_model_name + "_CUHK",
