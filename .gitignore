@@ -38,3 +38,6 @@ open_clip_smoke_test.py.lprof
 # Weaviate
 weaviate-data
 output
+
+# Notebook
+.ipynb_checkpoints

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 type SetNumToImagesMap = dict[int, list[str]]
 type ImageToSetNumMap = dict[str, int]
-type FileToHashesMap = dict[str, np.ndarray]
+type FileToHashesMap = dict[str, np.ndarray | np.floating]
 
 
 @dataclass

@@ -9,7 +9,6 @@ from rescueclip.logging_config import LOGGING_CONFIG
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
-import shutil
 from pathlib import Path
 
 import numpy as np
@@ -73,10 +72,10 @@ def experiment_with_top_ks(
     pre_existing = results_csv.exists()
     with open(results_csv, "a") as f:
         if not pre_existing:
-            f.write("collection,model,top_k,accuracy\n")
+            f.write("similarity_metric,collection,model,top_k,accuracy\n")
         for top_k, accuracy in accuracies.items():
             f.write(
-                f"{collection_config.name},{collection_config.model_config.model_name},{top_k},{accuracy}\n"
+                f"cosine,{collection_config.name},{collection_config.model_config.model_name},{top_k},{accuracy}\n"
             )
 
 

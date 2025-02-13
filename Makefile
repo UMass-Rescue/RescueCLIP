@@ -83,4 +83,5 @@ exclude_one_image_per_set_exp:
 ##### PDNA #########
 
 pdna_experiment:
-	python scripts/pdna/pdna_experiment.py
+	python scripts/pdna/pdna_experiment.py --apply_pdna_transformation
+
