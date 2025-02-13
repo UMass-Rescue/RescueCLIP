@@ -78,7 +78,9 @@ query_cuhk:
 	python scripts/cuhk_embeddings/query_cuhk.py
 
 exclude_one_image_per_set_exp:
-	python -m scripts.cuhk_embeddings.exclude_one_image_per_set_exp
+	python -m scripts.cuhk_embeddings.exclude_one_image_per_set_exp --collection_config cuhk_apple
 
 ##### PDNA #########
 
+pdna_experiment:
+	python scripts/pdna/pdna_experiment.py
