@@ -8,7 +8,13 @@ import weaviate
 from dotenv import load_dotenv
 from PIL import Image
 from tqdm import tqdm
-from weaviate.classes.config import Configure, DataType, Property, VectorDistances
+from weaviate.classes.config import (
+    Configure,
+    DataType,
+    Property,
+    Tokenization,
+    VectorDistances,
+)
 from weaviate.util import generate_uuid5, get_vector
 
 from rescueclip.cuhk import get_sets
@@ -37,7 +43,7 @@ def create_or_get_collection(client: weaviate.WeaviateClient, collection_name: s
             ],
             properties=[
                 Property(name="set_number", data_type=DataType.INT),
-                Property(name="file_name", data_type=DataType.TEXT),
+                Property(name="file_name", data_type=DataType.TEXT, tokenization=Tokenization.FIELD),
             ],
         )
         logger.info("New collection created: %s", collection.name)
