@@ -4,7 +4,14 @@ from hashlib import md5
 
 import torch
 import weaviate
-from weaviate.classes.config import Configure, DataType, Property, VectorDistances
+from weaviate.classes.config import (
+    Configure,
+    DataType,
+    Property,
+    Tokenization,
+    VectorDistances,
+)
+from weaviate.classes.query import Filter
 from weaviate.util import generate_uuid5, get_vector
 
 from rescueclip.logging_config import LOGGING_CONFIG
@@ -26,7 +33,7 @@ def create_or_get_collection(client: weaviate.WeaviateClient, collection_name: s
                 )
             ],
             properties=[
-                Property(name="file_name", data_type=DataType.TEXT),
+                Property(name="file_name", data_type=DataType.TEXT, tokenization=Tokenization.FIELD),
             ],
         )
         logger.info("New collection created: %s", collection.name)
@@ -76,15 +83,26 @@ def insert_or_ignore_vector(
 def main(client: weaviate.WeaviateClient):
     collection = create_or_get_collection(client, COLLECTION_NAME)
 
-    logger.info("Trying to insert a single vector...")
+    logger.info("TEST 1: Trying to insert a single vector...")
 
-    file_name = "sample_file_name.txt"
-    vector = torch.rand(4)
-    uuid = insert_or_ignore_vector(collection, Metadata(file_name), vector)
-
+    file_name1 = "sample_file_name.txt"
+    vector1 = torch.rand(4)
+    uuid = insert_or_ignore_vector(collection, Metadata(file_name1), vector1)
     data_object = collection.query.fetch_object_by_id(uuid, include_vector=True)
+    logger.info("Retrieved vector: %s\n", data_object)
 
-    logger.info("Retrieved vector: %s", data_object)
+    logger.info("TEST 2: Trying to insert another vector and perform a query...")
+
+    file_name2 = "sample_file_name2.txt"
+    vector2 = torch.rand(4)
+    insert_or_ignore_vector(collection, Metadata(file_name2), vector2)
+
+    data_object = collection.query.fetch_objects(
+        filters=Filter.by_property("file_name").not_equal(file_name1), include_vector=True
+    ).objects[0]
+
+    logger.info("\n")
+    logger.info("Retrieved vector: %s\n", data_object)
 
 
 if __name__ == "__main__":
