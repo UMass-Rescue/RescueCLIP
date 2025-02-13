@@ -1,11 +1,33 @@
 import json
+import logging
 import os
+import re
 import warnings
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
+
+import numpy as np
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+type SetNumToImagesMap = dict[int, list[str]]
+type ImageToSetNumMap = dict[str, int]
+type FileToHashesMap = dict[str, np.ndarray]
 
 
-def get_sets(in_folder: str | Path, stops_file: str | Path, debug=False) -> dict[int, list[str]]:
+@dataclass
+class Metadata:
+    set_number: int
+    file_name: str
+
+    def __repr__(self):
+        return str(self.set_number) + ":" + self.file_name
+
+
+def get_sets(in_folder: str | Path, stops_file: str | Path, debug=False) -> SetNumToImagesMap:
     """
     Returns a dictionary mapping set number to a list of file base names.
     """
@@ -47,6 +69,13 @@ def get_sets(in_folder: str | Path, stops_file: str | Path, debug=False) -> dict
     return sets
 
 
+def keep_sets_containing_n_images(sets: SetNumToImagesMap, n=4) -> SetNumToImagesMap:
+    sets = {set_id: set_images for set_id, set_images in sets.items() if len(set_images) == n}
+    n_images = sum(len(sett) for sett in sets.values())
+    logger.info("After filtering, using %s sets and %s images", len(sets), n_images)
+    return sets
+
+
 def get_sets_new(in_folder, meta_file):
     with open(meta_file) as fd:
         meta_list = json.load(fd)
@@ -58,3 +87,24 @@ def get_sets_new(in_folder, meta_file):
         sets[set_num].append(file_name)
 
     return sets
+
+
+def get_one_random_image_per_set(sets: SetNumToImagesMap):
+    images_to_remove: list[Metadata] = []
+    for set_number, file_names in sets.items():
+        if len(file_names) > 1:
+            images_to_remove.append(Metadata(set_number, np.random.choice(file_names)))
+    return images_to_remove
+
+
+def get_pdna_hashes(hashes_file: Path, include_only: Optional[set[str]] = None) -> FileToHashesMap:
+    hashes = pd.read_csv(hashes_file, header=None)
+    filename_to_hash_map: FileToHashesMap = {}
+    for idx, row in hashes.iterrows():
+        filename = re.sub(r"\\", "/", row[0])
+        filename = Path(filename).name
+        hsh = np.array([int(num) for num in row[1].split(",")])
+        if include_only is not None and filename not in include_only:
+            continue
+        filename_to_hash_map[filename] = hsh
+    return filename_to_hash_map

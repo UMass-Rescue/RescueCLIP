@@ -17,7 +17,7 @@ from weaviate.classes.config import (
 )
 from weaviate.util import generate_uuid5, get_vector
 
-from rescueclip.cuhk import get_sets
+from rescueclip.cuhk import Metadata, get_sets, keep_sets_containing_n_images
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.open_clip import (
     CollectionConfig,
@@ -56,15 +56,6 @@ def create_or_get_collection(client: weaviate.WeaviateClient, collection_name: s
     return collection
 
 
-@dataclass
-class Metadata:
-    set_number: int
-    file_name: str
-
-    def __repr__(self):
-        return str(self.set_number) + ":" + self.file_name
-
-
 def add_to_batch(
     batch: weaviate.collections.BatchCollection,
     uuid: weaviate.types.UUID,
@@ -89,6 +80,9 @@ def embed_cuhk_dataset(
     sets = get_sets(input_folder, stops_file)
     n_images = sum(len(sett) for sett in sets.values())
     logger.info("Retrieved %s sets and %s images", len(sets), n_images)
+
+    # Filter: keep sets with exactly 4 images
+    sets = keep_sets_containing_n_images(sets, 4)
 
     # Loading the CLIP model
     # Get the torch device
