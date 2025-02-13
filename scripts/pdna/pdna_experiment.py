@@ -105,7 +105,7 @@ def query_hash(
 
 def main(INPUT_FOLDER, STOPS_FILE, apply_pdna_transformation=False):
     hashes_file = Path("/scratch3/atharva/photodna/hashes.csv")
-    top_ks = [1, 2, 5, 10, 15, 20]
+    top_ks = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50]
 
     # Get the sets
     sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)

@@ -94,7 +94,7 @@ def embed_dataset(
 def experiment(client: weaviate.WeaviateClient, collection_config: CollectionConfig):
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    top_ks = [1, 2, 5, 10, 15, 20]
+    top_ks = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50]
 
     # Embed the dataset and get the weaviate collection
     # embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
@@ -137,7 +137,6 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Invalid collection_config {args.collection_config}")
 
-    top_ks = [1, 2, 5, 10, 15, 20]
     with WeaviateClientEnsureReady() as client:
         experiment(client, collection_config)
 
