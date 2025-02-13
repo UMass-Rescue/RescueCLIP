@@ -3,15 +3,20 @@ This script is used to test if the OpenCLIP installation is working correctly.
 """
 
 import logging.config
+from typing import assert_never
 
 import torch
 from line_profiler import profile
 from PIL import Image
 
 from rescueclip.logging_config import LOGGING_CONFIG
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
+    CLIPModel,
+    LIPModelProvider,
+    SiglipModel,
     ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
+    google_siglip_base_patch16_224,
     laion_CLIP_ViT_bigG_14_laion2B_39B_b160k,
     load_inference_clip_model,
 )
@@ -29,23 +34,42 @@ def main():
 
     print("Using device:", device)
 
-    model_config = laion_CLIP_ViT_bigG_14_laion2B_39B_b160k
-    model, preprocess, tokenizer = load_inference_clip_model(model_config, device)
+    model_config = apple_DFN5B_CLIP_ViT_H_14_384
+    m = load_inference_clip_model(model_config, device)
 
-    image = preprocess(Image.open(TEST_IMAGE_PATH)).unsqueeze(0).to(device)  # type: ignore
-    # images = torch.stack([image, image, image, image, image]).to(device).squeeze(dim=1)
-    text = tokenizer(["a diagram", "a dog", "a cat"]).to(device)
+    if isinstance(m, CLIPModel):
+        image = m.preprocess(Image.open(TEST_IMAGE_PATH)).unsqueeze(0).to(device)  # type: ignore
+        # images = torch.stack([image, image, image, image, image]).to(device).squeeze(dim=1)
+        text = m.tokenizer(["a diagram", "a dog", "a cat"]).to(device)
 
-    with torch.no_grad(), torch.amp.autocast(device):  # type: ignore
-        image_features = model.encode_image(image)  # [1, 1024]
-        text_features = model.encode_text(text)
-        image_features /= image_features.norm(dim=-1, keepdim=True)
-        text_features /= text_features.norm(dim=-1, keepdim=True)
+        with torch.no_grad(), torch.amp.autocast(device):  # type: ignore
+            image_features = m.model.encode_image(image)  # [1, 1024]
+            text_features = m.model.encode_text(text)
+            image_features /= image_features.norm(dim=-1, keepdim=True)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
 
-        text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+            text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
 
-    print("Label probs:", text_probs)  # prints: [[1., 0., 0.]]
-    print("SHOULD PRINT:", "Label probs: tensor([[1.0000e+00, 3.0116e-07, 6.1405e-10]], device='cuda:0')")
+        print("Label probs:", text_probs)  # prints: [[1., 0., 0.]]
+        print("SHOULD PRINT:", "Label probs: tensor([[1.0000e+00, 3.0116e-07, 6.1405e-10]], device='cuda:0')")
+    elif isinstance(m, SiglipModel):
+        image = Image.open(TEST_IMAGE_PATH).convert("RGB")
+        candidate_labels = ["a diagram", "a dog", "a cat"]
+
+        texts = [f"This is a photo of {label}." for label in candidate_labels]
+
+        inputs = m.processor(text=texts, images=image, padding="max_length", return_tensors="pt")
+        inputs.to(device)
+
+        with torch.no_grad():
+            with torch.autocast(device):
+                outputs = m.model(**inputs)
+
+        logits_per_image = outputs.logits_per_image
+        probs = torch.sigmoid(logits_per_image)  # these are the probabilities
+        print(f"{probs[0][0]:.1%} that image 0 is '{candidate_labels[0]}'")
+    else:
+        assert_never(m)
 
 
 if __name__ == "__main__":

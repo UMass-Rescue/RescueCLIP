@@ -8,7 +8,7 @@ from weaviate.classes.query import MetadataQuery
 from weaviate.util import get_vector
 
 from rescueclip.logging_config import LOGGING_CONFIG
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
     CUHK_Apple_Collection,
     encode_image,
     load_inference_clip_model,
@@ -28,11 +28,11 @@ def main(client: weaviate.WeaviateClient):
     device = torch_device()
 
     # Load the model into memory
-    model, preprocess, _ = load_inference_clip_model(COLLECTION.model_config, device)
+    m = load_inference_clip_model(COLLECTION.model_config, device)
 
     collection = client.collections.get(COLLECTION.name)
 
-    vector = get_vector(cast(Sequence, encode_image(BASE_DIR, SAMPLE_IMAGE, device, model, preprocess)))
+    vector = get_vector(cast(Sequence, encode_image(BASE_DIR, SAMPLE_IMAGE, device, m)))
     result = collection.query.near_vector(
         vector,
         limit=10,

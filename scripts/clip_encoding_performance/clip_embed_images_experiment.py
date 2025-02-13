@@ -11,7 +11,8 @@ from line_profiler import profile
 from PIL import Image
 from tqdm import tqdm
 
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
+    CLIPModel,
     ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
     encode_image,
@@ -43,17 +44,16 @@ def load_all_the_images_and_then_encode_them_together(
     files: list[str],
     path: str,
     device: str,
-    model: open_clip.CLIP,
-    preprocess: torchvision.transforms.Compose,
+    m: CLIPModel,
 ):
     print(f"Loading all the images first and then encoding images together")
     # Pre-allocate the image tensor
-    assert len(preprocess.transforms) > 0, "Expected at least one transform"
+    assert len(m.preprocess.transforms) > 0, "Expected at least one transform"
     assert isinstance(
-        preprocess.transforms[0], torchvision.transforms.transforms.Resize
-    ), f"Expected Resize transform, got {type(preprocess.transforms[0])}"
+        m.preprocess.transforms[0], torchvision.transforms.transforms.Resize
+    ), f"Expected Resize transform, got {type(m.preprocess.transforms[0])}"
 
-    size = preprocess.transforms[0].size[0]
+    size = m.preprocess.transforms[0].size[0]
     x = torch.empty(len(files), 3, size, size, device=device)
     print(f"Pre-allocated image tensor: {x.shape}")
 
@@ -67,7 +67,7 @@ def load_all_the_images_and_then_encode_them_together(
 
     # Encode the images
     with torch.no_grad(), torch.amp.autocast(device):  # type: ignore
-        images_features = model.encode_image(x)
+        images_features = m.model.encode_image(x)
         print(f"Image features: {images_features.shape}")
 
     return images_features
@@ -78,8 +78,7 @@ def load_each_image_and_encode_immediately(
     file_basenames: list[str],
     base_dir: str,
     device: str,
-    model: open_clip.CLIP,
-    preprocess: torchvision.transforms.Compose,
+    m: CLIPModel,
 ):
     print(f"Loading each image and encoding immediately")
     # Pre-allocate the image embedding tensor
@@ -90,7 +89,7 @@ def load_each_image_and_encode_immediately(
     # Encode the images
     with torch.no_grad(), torch.amp.autocast(device):  # type: ignore
         for i, file in tqdm(enumerate(file_basenames), total=len(file_basenames)):
-            images_features[i] = encode_image(base_dir, file, device, model, preprocess)
+            images_features[i] = encode_image(base_dir, file, device, m)
         print(f"Image features: {images_features.shape}")
 
     return images_features
@@ -135,7 +134,8 @@ def main():
     device = torch_device()
 
     # Load the model into memory
-    model, preprocess, _ = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
+    m = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
+    assert isinstance(m, CLIPModel)
 
     # Choose function based on CLI arg
     if FUNCTION_ENV == "load_all_the_images_and_then_encode_them_together":
@@ -149,7 +149,7 @@ def main():
 
     # Run the function
     start = time.time()
-    embeddings = fn(file_basenames, base_dir, device, model, preprocess)
+    embeddings = fn(file_basenames, base_dir, device, m)
     end = time.time()
     print(f"Time taken for loop: {end - start:.2f}")
     print(f"Embeddings: {embeddings.shape}")

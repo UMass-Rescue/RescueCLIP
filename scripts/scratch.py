@@ -4,7 +4,7 @@ import weaviate
 from weaviate.classes.query import Filter
 
 from rescueclip.cuhk import get_sets
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
     CUHK_Apple_Collection,
     CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
     CUHK_ViT_B_32_Collection,

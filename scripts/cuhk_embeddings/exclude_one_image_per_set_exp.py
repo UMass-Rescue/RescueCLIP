@@ -18,11 +18,13 @@ from weaviate.classes.query import Filter, MetadataQuery
 from weaviate.util import generate_uuid5
 
 from rescueclip import cuhk
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
     CollectionConfig,
     CUHK_Apple_Collection,
     CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
     CUHK_ViT_B_32_Collection,
+    CUHK_Google_Siglip_Base_Patch16_224_Collection,
+    CUHK_Google_Siglip_SO400M_Patch14_384_Collection
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
@@ -95,28 +97,23 @@ def experiment(client: weaviate.WeaviateClient, collection_config: CollectionCon
     top_ks = [1, 2, 5, 10, 15, 20]
 
     # Embed the dataset and get the weaviate collection
-    embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
+    # embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
     collection = client.collections.get(collection_config.name)
 
     # Remove one random image from each series
     sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)
     sets = cuhk.keep_sets_containing_n_images(sets, 4)
 
-    images_to_remove = cuhk.get_one_random_image_per_set(sets)
-
-    images_to_remove_uuid = [generate_uuid5(image) for image in images_to_remove]
-    images_to_remove_vectors = [
+    # Some images become our test set. We must be sure to exclude them when querying the DB.
+    test_images = cuhk.get_one_random_image_per_set(sets)
+    images_to_remove_uuid = [generate_uuid5(image) for image in test_images]
+    test_vectors = [
         collection.query.fetch_object_by_id(uuid, include_vector=True).vector["embedding"]
         for uuid in images_to_remove_uuid
     ]
 
-    # The removed images become our test set
-    test_images = images_to_remove
-    test_vectors = images_to_remove_vectors
 
     experiment_with_top_ks(top_ks, collection_config, collection, test_images, test_vectors)
-
-    embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
 
 
 if __name__ == "__main__":
@@ -133,6 +130,10 @@ if __name__ == "__main__":
         collection_config = CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection
     elif args.collection_config == "cuhk_vit_b_32":
         collection_config = CUHK_ViT_B_32_Collection
+    elif args.collection_config == "cuhk_google_siglip_base_patch16_224":
+        collection_config = CUHK_Google_Siglip_Base_Patch16_224_Collection
+    elif args.collection_config == "cuhk_google_siglip_so400m_patch14_384":
+        collection_config = CUHK_Google_Siglip_SO400M_Patch14_384_Collection
     else:
         raise ValueError(f"Invalid collection_config {args.collection_config}")
 

@@ -19,9 +19,10 @@ from weaviate.util import generate_uuid5, get_vector
 
 from rescueclip.cuhk import Metadata, get_sets, keep_sets_containing_n_images
 from rescueclip.logging_config import LOGGING_CONFIG
-from rescueclip.open_clip import (
+from rescueclip.ml_model import (
     CollectionConfig,
     CUHK_Apple_Collection,
+    CUHK_Google_Siglip_Base_Patch16_224_Collection,
     encode_image,
     load_inference_clip_model,
     torch_device,
@@ -89,7 +90,7 @@ def embed_cuhk_dataset(
     device = torch_device()
 
     # Load the model into memory
-    model, preprocess, _ = load_inference_clip_model(collection_config.model_config, device)
+    m = load_inference_clip_model(collection_config.model_config, device)
 
     # Ingesting
     collection = create_or_get_collection(client, collection_config.name)
@@ -104,7 +105,7 @@ def embed_cuhk_dataset(
                         batch,
                         uuid,
                         metadata,
-                        encode_image(input_folder, basename, device, model, preprocess),
+                        encode_image(input_folder, basename, device, m),
                     )
             if batch.number_errors > 10:
                 logger.error("Batch import stopped due to excessive errors.")
@@ -121,6 +122,6 @@ if __name__ == "__main__":
     load_dotenv()
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
-    collection_config = CUHK_Apple_Collection
+    collection_config = CUHK_Google_Siglip_Base_Patch16_224_Collection
     with WeaviateClientEnsureReady() as client:
         embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
