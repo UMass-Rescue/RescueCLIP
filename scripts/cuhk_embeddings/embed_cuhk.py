@@ -111,6 +111,11 @@ def embed_cuhk_dataset(
                 logger.error("Batch import stopped due to excessive errors.")
                 break
 
+    # Unload the model
+    logger.info("Unloading model by empyting torch cache")
+    del m
+    torch.cuda.empty_cache()
+
     failed_objects = collection.batch.failed_objects
     if failed_objects:
         logger.error(f"Number of failed imports: {len(failed_objects)}")

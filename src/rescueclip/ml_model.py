@@ -160,15 +160,15 @@ def load_inference_clip_model(config: LIPModelConfig, device: str, cache_dir: Pa
             )
 
             logger.info("Loaded model: %s", config.model_name)
-            return CLIPModel(model, preprocess_image, tokenizer)  # type: ignore
+            return CLIPModel(clip_model, preprocess_image, tokenizer)  # type: ignore
         case LIPModelProvider.SIGLIP:
-            model: transformers.SiglipModel = transformers.AutoModel.from_pretrained(
+            siglip_model: transformers.SiglipModel = transformers.AutoModel.from_pretrained(
                 config.model_name, cache_dir=str(cache_dir / "siglip"), device_map=device
             )
             processor: transformers.SiglipProcessor = transformers.AutoProcessor.from_pretrained(
                 config.model_name, cache_dir=str(cache_dir / "siglip"), device_map=device
             )
-            return SiglipModel(model, processor)
+            return SiglipModel(siglip_model, processor)
         case _:
             raise ValueError(f"Unknown model provider: {config.provider}")
 

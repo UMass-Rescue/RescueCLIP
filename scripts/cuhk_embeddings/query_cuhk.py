@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from typing import Sequence, cast
 
+from dotenv import load_dotenv
+import torch
 import weaviate
 from weaviate.classes.query import MetadataQuery
 from weaviate.util import get_vector
@@ -17,7 +19,7 @@ from rescueclip.ml_model import (
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
 logger = logging.getLogger(__name__)
-
+load_dotenv()
 
 def main(client: weaviate.WeaviateClient):
     BASE_DIR = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
