@@ -98,7 +98,7 @@ def experiment(client: weaviate.WeaviateClient, collection_config: CollectionCon
     top_ks = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50]
 
     # Embed the dataset and get the weaviate collection
-    # embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
+    embed_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)
     collection = client.collections.get(collection_config.name)
 
     # Remove one random image from each series
