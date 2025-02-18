@@ -17,7 +17,7 @@ from weaviate.classes.config import (
 )
 from weaviate.util import generate_uuid5, get_vector
 
-from rescueclip.cuhk import Metadata, get_sets, keep_sets_containing_n_images
+from rescueclip.cuhk import Metadata, get_sets_new, keep_sets_containing_n_images
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
     CollectionConfig,
@@ -78,7 +78,7 @@ def embed_cuhk_dataset(
     client: weaviate.WeaviateClient, input_folder: Path, stops_file: Path, collection_config: CollectionConfig
 ):
     # Retrieving sets
-    sets = get_sets(input_folder, stops_file)
+    sets = get_sets_new(input_folder, stops_file)
     n_images = sum(len(sett) for sett in sets.values())
     logger.info("Retrieved %s sets and %s images", len(sets), n_images)
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     logging.config.dictConfig(LOGGING_CONFIG)
     load_dotenv()
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
-    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
+    STOPS_FILE = Path("/scratch3/gbiss/images/CUHK-PEDES-OFFICIAL/caption_all.json")
     collection_config = CUHK_Google_Siglip_Base_Patch16_224_Collection
     with WeaviateClientEnsureReady() as client:
         embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)

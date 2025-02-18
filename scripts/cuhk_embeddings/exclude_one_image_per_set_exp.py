@@ -21,11 +21,11 @@ from rescueclip import cuhk
 from rescueclip.ml_model import (
     CollectionConfig,
     CUHK_Apple_Collection,
-    CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
-    CUHK_ViT_B_32_Collection,
     CUHK_Google_Siglip_Base_Patch16_224_Collection,
     CUHK_Google_Siglip_SO400M_Patch14_384_Collection,
-    CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection
+    CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
+    CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection,
+    CUHK_ViT_B_32_Collection,
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
@@ -94,7 +94,7 @@ def embed_dataset(
 
 def experiment(client: weaviate.WeaviateClient, collection_config: CollectionConfig):
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
-    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
+    STOPS_FILE = Path("/scratch3/gbiss/images/CUHK-PEDES-OFFICIAL/caption_all.json")
     top_ks = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50]
 
     # Embed the dataset and get the weaviate collection
@@ -102,7 +102,7 @@ def experiment(client: weaviate.WeaviateClient, collection_config: CollectionCon
     collection = client.collections.get(collection_config.name)
 
     # Remove one random image from each series
-    sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)
+    sets = cuhk.get_sets_new(INPUT_FOLDER, STOPS_FILE)
     sets = cuhk.keep_sets_containing_n_images(sets, 4)
 
     # Some images become our test set. We must be sure to exclude them when querying the DB.
@@ -112,7 +112,6 @@ def experiment(client: weaviate.WeaviateClient, collection_config: CollectionCon
         collection.query.fetch_object_by_id(uuid, include_vector=True).vector["embedding"]
         for uuid in images_to_remove_uuid
     ]
-
 
     experiment_with_top_ks(top_ks, collection_config, collection, test_images, test_vectors)
 

@@ -108,13 +108,15 @@ def main(INPUT_FOLDER, STOPS_FILE, apply_pdna_transformation=False):
     top_ks = [1, 2, 5, 10, 15, 20, 25, 30, 40, 50]
 
     # Get the sets
-    sets = cuhk.get_sets(INPUT_FOLDER, STOPS_FILE)
+    sets = cuhk.get_sets_new(INPUT_FOLDER, STOPS_FILE)
     sets = cuhk.keep_sets_containing_n_images(sets, 4)
     set_lookup_map = {filename: set_id for set_id, file_list in sets.items() for filename in file_list}
 
     # Get the PDNA hashes
     filename_to_hash_map = cuhk.get_pdna_hashes(hashes_file, include_only=set(set_lookup_map.keys()))
-    assert len(filename_to_hash_map) == len(set_lookup_map), "Some images are missing hashes"
+    assert len(filename_to_hash_map) == len(
+        set_lookup_map
+    ), f"Some images are missing hashes, {len(filename_to_hash_map)} != {len(set_lookup_map)}"
     logger.info(f"Loaded {len(filename_to_hash_map)} hashes")
 
     # (Optional) Apply the PDNA transformation to the hashes
@@ -210,7 +212,7 @@ if __name__ == "__main__":
     logging.config.dictConfig(LOGGING_CONFIG)
     load_dotenv()
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
-    STOPS_FILE = Path("./scripts/cuhk_embeddings/cuhk_stops.txt")
+    STOPS_FILE = Path("/scratch3/gbiss/images/CUHK-PEDES-OFFICIAL/caption_all.json")
     tests()
 
     parser = argparse.ArgumentParser()
