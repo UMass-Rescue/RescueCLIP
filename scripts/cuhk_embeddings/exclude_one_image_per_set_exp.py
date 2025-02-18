@@ -24,7 +24,8 @@ from rescueclip.ml_model import (
     CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
     CUHK_ViT_B_32_Collection,
     CUHK_Google_Siglip_Base_Patch16_224_Collection,
-    CUHK_Google_Siglip_SO400M_Patch14_384_Collection
+    CUHK_Google_Siglip_SO400M_Patch14_384_Collection,
+    CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
 
@@ -134,18 +135,10 @@ if __name__ == "__main__":
         collection_config = CUHK_Google_Siglip_Base_Patch16_224_Collection
     elif args.collection_config == "cuhk_google_siglip_so400m_patch14_384":
         collection_config = CUHK_Google_Siglip_SO400M_Patch14_384_Collection
+    elif args.collection_config == "cuhk_metaclip_vit_bigg14_quickgelu_224":
+        collection_config = CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection
     else:
         raise ValueError(f"Invalid collection_config {args.collection_config}")
 
     with WeaviateClientEnsureReady() as client:
         experiment(client, collection_config)
-
-"""
-(top_k, Accuracy) for Apple Model on CUHK dataset
-1, 31.13377324535093
-2, 55.42891421715657
-5, 67
-10, 72
-15, 77
-20, 81
-"""

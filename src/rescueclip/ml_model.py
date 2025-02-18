@@ -73,6 +73,15 @@ laion_CLIP_ViT_bigG_14_laion2B_39B_b160k = LIPModelConfig(
     provider=LIPModelProvider.OPEN_CLIP,
 )
 
+# https://github.com/facebookresearch/metaclip?tab=readme-ov-file
+metaclip_ViT_bigG_14_quickgelu_224 = LIPModelConfig(
+    model_name="ViT-bigG-14-quickgelu",
+    checkpoint_name="metaclip_fullcc",
+    tokenizer_model_name="ViT-bigG-14-quickgelu",
+    weaviate_friendly_model_name="MetaCLIP_ViT_bigG_14_quickgelu_224",
+    provider=LIPModelProvider.OPEN_CLIP,
+)
+
 # https://huggingface.co/docs/transformers/en/model_doc/siglip#using-the-model-yourself
 google_siglip_base_patch16_224 = LIPModelConfig(
     model_name="google/siglip-base-patch16-224",
@@ -113,6 +122,11 @@ CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection = CollectionConfig(
 CUHK_Apple_Collection = CollectionConfig(
     name=apple_DFN5B_CLIP_ViT_H_14_384.weaviate_friendly_model_name + "_CUHK",
     model_config=apple_DFN5B_CLIP_ViT_H_14_384,
+)
+
+CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection = CollectionConfig(
+    name=metaclip_ViT_bigG_14_quickgelu_224.weaviate_friendly_model_name + "_CUHK",
+    model_config=metaclip_ViT_bigG_14_quickgelu_224,
 )
 
 CUHK_Google_Siglip_Base_Patch16_224_Collection = CollectionConfig(
