@@ -12,7 +12,6 @@ import transformers
 from PIL import Image
 from torch import Tensor
 
-
 logger = logging.getLogger(__name__)
 
 CACHE_DIR = Path("./.cache")

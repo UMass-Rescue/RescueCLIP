@@ -88,3 +88,6 @@ exclude_one_image_per_set_exp:
 pdna_experiment:
 	python scripts/pdna/pdna_experiment.py --apply_pdna_transformation
 
+##### Threshold Test #########
+threshold_test:
+	python scripts/cuhk_embeddings/threshold_test.py --collection_config cuhk_apple

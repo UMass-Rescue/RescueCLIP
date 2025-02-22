@@ -2,7 +2,6 @@ import logging.config
 
 import weaviate
 
-
 logger = logging.getLogger(__name__)
 
 
