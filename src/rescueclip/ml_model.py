@@ -1,6 +1,5 @@
 import logging.config
 import os
-from calendar import c
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -13,7 +12,6 @@ import transformers
 from PIL import Image
 from torch import Tensor
 
-from rescueclip.logging_config import LOGGING_CONFIG
 
 logger = logging.getLogger(__name__)
 

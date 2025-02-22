@@ -1,6 +1,5 @@
 import logging.config
 from dataclasses import dataclass
-from hashlib import md5
 
 import torch
 import weaviate
@@ -9,7 +8,6 @@ from weaviate.classes.config import (
     DataType,
     Property,
     Tokenization,
-    VectorDistances,
 )
 from weaviate.classes.query import Filter
 from weaviate.util import generate_uuid5, get_vector

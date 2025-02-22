@@ -1,19 +1,17 @@
 import logging.config
 import os
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from pathlib import Path
 
 import torch
 import weaviate
 from dotenv import load_dotenv
-from PIL import Image
 from tqdm import tqdm
 from weaviate.classes.config import (
     Configure,
     DataType,
     Property,
     Tokenization,
-    VectorDistances,
 )
 from weaviate.util import generate_uuid5, get_vector
 
@@ -21,7 +19,6 @@ from rescueclip.cuhk import Metadata, get_sets_new, keep_sets_containing_n_image
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
     CollectionConfig,
-    CUHK_Apple_Collection,
     CUHK_Google_Siglip_Base_Patch16_224_Collection,
     encode_image,
     load_inference_clip_model,

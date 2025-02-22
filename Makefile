@@ -16,6 +16,9 @@ format:
 	black --line-length 110 $(SRC)
 	isort --profile black $(SRC)
 
+autoflake:
+	autoflake --in-place --remove-all-unused-imports --recursive $(SRC)
+
 ####### CLIP Embedding Experiments #######
 
 clip_embed_images_experiment_single_run:

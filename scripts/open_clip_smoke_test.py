@@ -12,12 +12,8 @@ from PIL import Image
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
     CLIPModel,
-    LIPModelProvider,
     SiglipModel,
-    ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
-    google_siglip_base_patch16_224,
-    laion_CLIP_ViT_bigG_14_laion2B_39B_b160k,
     load_inference_clip_model,
 )
 

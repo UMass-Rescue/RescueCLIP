@@ -3,7 +3,6 @@ import os
 import time
 from pathlib import Path
 
-import open_clip
 import torch
 import torchvision
 from dotenv import load_dotenv
@@ -13,7 +12,6 @@ from tqdm import tqdm
 
 from rescueclip.ml_model import (
     CLIPModel,
-    ViT_B_32,
     apple_DFN5B_CLIP_ViT_H_14_384,
     encode_image,
     load_inference_clip_model,

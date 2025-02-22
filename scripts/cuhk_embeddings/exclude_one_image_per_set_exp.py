@@ -11,7 +11,6 @@ logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 from pathlib import Path
 
-import numpy as np
 import weaviate
 from tqdm import tqdm
 from weaviate.classes.query import Filter, MetadataQuery

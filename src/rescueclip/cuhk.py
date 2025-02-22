@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import re
-import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -76,7 +75,7 @@ def keep_sets_containing_n_images(sets: SetNumToImagesMap, n=4) -> SetNumToImage
     return sets
 
 
-def get_sets_new(in_folder, meta_file):
+def get_sets_new(in_folder, meta_file) -> SetNumToImagesMap:
     with open(meta_file) as fd:
         meta_list = json.load(fd)
 
@@ -89,6 +88,13 @@ def get_sets_new(in_folder, meta_file):
     return sets
 
 
+def get_number_of_images_in_sets(sets: SetNumToImagesMap) -> int:
+    n_images = 0
+    for set in sets:
+        n_images += len(sets[set])
+    return n_images
+
+
 def get_one_random_image_per_set(sets: SetNumToImagesMap):
     images_to_remove: list[Metadata] = []
     for set_number, file_names in sets.items():
@@ -97,14 +103,36 @@ def get_one_random_image_per_set(sets: SetNumToImagesMap):
     return images_to_remove
 
 
-def get_pdna_hashes(hashes_file: Path, include_only: Optional[set[str]] = None) -> FileToHashesMap:
+def get_pdna_hashes(
+    hashes_file: Path, include_only: Optional[set[str]] = None
+) -> tuple[FileToHashesMap, set[str]]:
+    if include_only is not None:
+        include_only = include_only.copy()
     hashes = pd.read_csv(hashes_file, header=None)
     filename_to_hash_map: FileToHashesMap = {}
     for idx, row in hashes.iterrows():
         filename = re.sub(r"\\", "/", row[0])
         filename = Path(filename).name
         hsh = np.array([int(num) for num in row[1].split(",")])
-        if include_only is not None and filename not in include_only:
+        if include_only is None or filename not in include_only:
             continue
         filename_to_hash_map[filename] = hsh
-    return filename_to_hash_map
+        include_only.remove(filename)
+
+    missing_files = include_only or set()
+    return filename_to_hash_map, missing_files
+
+
+def eliminate_sets_containing_files(
+    filename_to_hash_map: FileToHashesMap, missing_filenames: set[str], sets: SetNumToImagesMap
+) -> SetNumToImagesMap:
+    new_sets: SetNumToImagesMap = {}
+    for set_id, file_names_list in sets.items():
+        file_names_set = set(file_names_list)
+        if file_names_set.isdisjoint(missing_filenames):
+            new_sets[set_id] = file_names_list
+        else:
+            for file_name in file_names_list:
+                if file_name in filename_to_hash_map:
+                    del filename_to_hash_map[file_name]
+    return new_sets

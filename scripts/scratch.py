@@ -3,11 +3,9 @@ from collections import Counter
 import weaviate
 from weaviate.classes.query import Filter
 
-from rescueclip.cuhk import get_sets, get_sets_new
+from rescueclip.cuhk import get_sets_new
 from rescueclip.ml_model import (
-    CUHK_Apple_Collection,
     CUHK_laion_CLIP_ViT_bigG_14_laion2B_39B_b160k_Collection,
-    CUHK_ViT_B_32_Collection,
 )
 
 in_folder = "/scratch3/gbiss/images/CUHK-PEDES-OFFICIAL/out"

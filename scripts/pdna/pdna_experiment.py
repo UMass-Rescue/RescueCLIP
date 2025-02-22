@@ -1,13 +1,11 @@
 import argparse
 import logging.config
 import os
-import re
 from collections import defaultdict
 from html import parser
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 from dotenv import load_dotenv
 from tqdm import tqdm
 
@@ -113,7 +111,13 @@ def main(INPUT_FOLDER, STOPS_FILE, apply_pdna_transformation=False):
     set_lookup_map = {filename: set_id for set_id, file_list in sets.items() for filename in file_list}
 
     # Get the PDNA hashes
-    filename_to_hash_map = cuhk.get_pdna_hashes(hashes_file, include_only=set(set_lookup_map.keys()))
+    filename_to_hash_map, missing_filenames = cuhk.get_pdna_hashes(
+        hashes_file, include_only=set(set_lookup_map.keys())
+    )
+    sets = cuhk.eliminate_sets_containing_files(filename_to_hash_map, missing_filenames, sets)
+    set_lookup_map = {filename: set_id for set_id, file_list in sets.items() for filename in file_list}
+
+    logger.info(f"Missing filenames length: {len(missing_filenames)}")
     assert len(filename_to_hash_map) == len(
         set_lookup_map
     ), f"Some images are missing hashes, {len(filename_to_hash_map)} != {len(set_lookup_map)}"

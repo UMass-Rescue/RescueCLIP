@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from typing import Sequence, cast
 
-import torch
 import weaviate
 from dotenv import load_dotenv
 from weaviate.classes.query import MetadataQuery
