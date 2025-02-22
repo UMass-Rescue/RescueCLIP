@@ -24,7 +24,7 @@ load_dotenv()
 
 def main(client: weaviate.WeaviateClient):
     BASE_DIR = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
-    SAMPLE_IMAGE = "0002004.jpg"
+    SAMPLE_IMAGE = "0002004.png"
     COLLECTION = CUHK_Apple_Collection
 
     # Get the torch device
@@ -34,6 +34,11 @@ def main(client: weaviate.WeaviateClient):
     m = load_inference_clip_model(COLLECTION.model_config, device)
 
     collection = client.collections.get(COLLECTION.name)
+
+    results = collection.query.fetch_objects(limit=1, include_vector=True)
+    logger.info(
+        f"Length of vector in {collection.name} collection: {len(results.objects[0].vector['embedding'])}"
+    )
 
     vector = get_vector(cast(Sequence, encode_image(BASE_DIR, SAMPLE_IMAGE, device, m)))
     result = collection.query.near_vector(
