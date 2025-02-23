@@ -44,7 +44,8 @@ dependencies = [
   "transformers[torch]>=4.48.3",
   "sentencepiece>=0.2.0",
   "notebook>=7.3.2",
-  "optuna>=4.2.1"
+  "optuna>=4.2.1",
+  "scikit-learn>=1.6.1",
 ]
 
 description = "Generate, store and query image embeddings locally"
