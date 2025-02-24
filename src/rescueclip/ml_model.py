@@ -3,14 +3,18 @@ import os
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, assert_never
 
+from dotenv import load_dotenv
 import open_clip
 import torch
 import torchvision
 import transformers
 from PIL import Image
 from torch import Tensor
+
+from rescueclip import cuhk
+from rescueclip.cuhk import FileToHashesMap
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +35,7 @@ def torch_device() -> str:
 class LIPModelProvider(StrEnum):
     OPEN_CLIP = "open_clip"
     SIGLIP = "siglip"
+    PDNA = "pdna"
 
 
 @dataclass
@@ -44,6 +49,13 @@ class LIPModelConfig:
     def __str__(self):
         return f"({self.model_name})"
 
+PDNA_Model = LIPModelConfig(
+    model_name="PhotoDNA",
+    checkpoint_name=None,
+    tokenizer_model_name=None,
+    weaviate_friendly_model_name="PDNA_Model",
+    provider=LIPModelProvider.PDNA,
+)
 
 ViT_B_32 = LIPModelConfig(
     model_name="ViT-B-32",
@@ -107,6 +119,8 @@ class CollectionConfig:
         return f"\n\tCollection name: {self.name}" + f"\n\tModel Config: {str(self.model_config)}\n"
 
 
+# CLIP
+
 CUHK_ViT_B_32_Collection = CollectionConfig(
     name=ViT_B_32.weaviate_friendly_model_name + "_CUHK", model_config=ViT_B_32
 )
@@ -126,6 +140,8 @@ CUHK_MetaCLIP_ViT_bigG_14_quickgelu_224_Collection = CollectionConfig(
     model_config=metaclip_ViT_bigG_14_quickgelu_224,
 )
 
+## SigLIP
+
 CUHK_Google_Siglip_Base_Patch16_224_Collection = CollectionConfig(
     name=google_siglip_base_patch16_224.weaviate_friendly_model_name + "_CUHK",
     model_config=google_siglip_base_patch16_224,
@@ -134,6 +150,12 @@ CUHK_Google_Siglip_Base_Patch16_224_Collection = CollectionConfig(
 CUHK_Google_Siglip_SO400M_Patch14_384_Collection = CollectionConfig(
     name=google_siglip_so400m_patch14_384.weaviate_friendly_model_name + "_CUHK",
     model_config=google_siglip_so400m_patch14_384,
+)
+
+## PDNA
+
+CUHK_PDNA_Collection = CollectionConfig(
+    name=PDNA_Model.weaviate_friendly_model_name + "_CUHK", model_config=PDNA_Model
 )
 
 
@@ -149,11 +171,14 @@ class SiglipModel:
     model: transformers.SiglipModel
     processor: transformers.SiglipProcessor
 
+@dataclass
+class PhotoDNAModel:
+    filename_to_hashes: FileToHashesMap
 
-type LIPModel = CLIPModel | SiglipModel
+type LIPModel = CLIPModel | SiglipModel | PhotoDNAModel
 
 
-def load_inference_clip_model(config: LIPModelConfig, device: str, cache_dir: Path = CACHE_DIR) -> LIPModel:
+def load_embedding_model(config: LIPModelConfig, device: str, cache_dir: Path = CACHE_DIR) -> LIPModel:
     match config.provider:
         case LIPModelProvider.OPEN_CLIP:
             clip_model, _, preprocess_image = open_clip.create_model_and_transforms(
@@ -181,8 +206,12 @@ def load_inference_clip_model(config: LIPModelConfig, device: str, cache_dir: Pa
             )
             logger.info("Loaded SigLIPmodel: %s", config.model_name)
             return SiglipModel(siglip_model, processor)
+        case LIPModelProvider.PDNA:
+            load_dotenv()
+            hashes, _ = cuhk.get_pdna_hashes(Path(os.environ["PDNA_HASHES_FILE"]))
+            return PhotoDNAModel(filename_to_hashes=hashes)
         case _:
-            raise ValueError(f"Unknown model provider: {config.provider}")
+            assert_never(config.provider)
 
 
 def encode_image(
@@ -191,17 +220,21 @@ def encode_image(
     device: str,
     m: LIPModel,
 ) -> Tensor:
-    pil_image = Image.open(os.path.join(base_dir, file))
     match m:
         case CLIPModel():
+            pil_image = Image.open(os.path.join(base_dir, file))
             image = m.preprocess(pil_image).unsqueeze(0).to(device)  # type: ignore
             pil_image.close()
             return m.model.encode_image(image)
         case SiglipModel():
+            pil_image = Image.open(os.path.join(base_dir, file))
             with torch.autocast(device):
                 pil_image = pil_image.convert("RGB")
                 inputs = m.processor(images=pil_image, padding="max_length", return_tensors="pt")
+                pil_image.close()
                 inputs.to(device)
                 return m.model.get_image_features(inputs.data["pixel_values"])
+        case PhotoDNAModel():
+            return torch.from_numpy(m.filename_to_hashes[str(file)]).to(device)
         case _:
             raise ValueError(f"Unknown model type: {type(model)}")

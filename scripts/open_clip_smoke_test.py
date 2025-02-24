@@ -12,9 +12,10 @@ from PIL import Image
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
     CLIPModel,
+    PhotoDNAModel,
     SiglipModel,
     apple_DFN5B_CLIP_ViT_H_14_384,
-    load_inference_clip_model,
+    load_embedding_model,
 )
 
 
@@ -31,7 +32,7 @@ def main():
     print("Using device:", device)
 
     model_config = apple_DFN5B_CLIP_ViT_H_14_384
-    m = load_inference_clip_model(model_config, device)
+    m = load_embedding_model(model_config, device)
 
     if isinstance(m, CLIPModel):
         image = m.preprocess(Image.open(TEST_IMAGE_PATH)).unsqueeze(0).to(device)  # type: ignore
@@ -64,6 +65,8 @@ def main():
         logits_per_image = outputs.logits_per_image
         probs = torch.sigmoid(logits_per_image)  # these are the probabilities
         print(f"{probs[0][0]:.1%} that image 0 is '{candidate_labels[0]}'")
+    elif isinstance(m, PhotoDNAModel):
+        print("Use query hash or embed for a smoke test of PDNA")
     else:
         assert_never(m)
 

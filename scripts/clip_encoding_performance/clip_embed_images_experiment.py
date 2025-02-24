@@ -14,7 +14,7 @@ from rescueclip.ml_model import (
     CLIPModel,
     apple_DFN5B_CLIP_ViT_H_14_384,
     encode_image,
-    load_inference_clip_model,
+    load_embedding_model,
     torch_device,
 )
 
@@ -132,7 +132,7 @@ def main():
     device = torch_device()
 
     # Load the model into memory
-    m = load_inference_clip_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
+    m = load_embedding_model(apple_DFN5B_CLIP_ViT_H_14_384, device)
     assert isinstance(m, CLIPModel)
 
     # Choose function based on CLI arg

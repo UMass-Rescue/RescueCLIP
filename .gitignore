@@ -41,3 +41,6 @@ output
 
 # Notebook
 .ipynb_checkpoints
+
+# Databases
+experiments.db

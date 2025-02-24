@@ -114,10 +114,11 @@ def get_pdna_hashes(
         filename = re.sub(r"\\", "/", row[0])
         filename = Path(filename).name
         hsh = np.array([int(num) for num in row[1].split(",")])
-        if include_only is None or filename not in include_only:
-            continue
-        filename_to_hash_map[filename] = hsh
-        include_only.remove(filename)
+        if include_only is not None and filename in include_only:
+            filename_to_hash_map[filename] = hsh
+            include_only.remove(filename)
+        elif include_only is None:
+            filename_to_hash_map[filename] = hsh
 
     missing_files = include_only or set()
     return filename_to_hash_map, missing_files

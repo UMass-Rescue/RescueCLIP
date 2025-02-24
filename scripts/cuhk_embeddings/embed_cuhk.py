@@ -15,13 +15,16 @@ from weaviate.classes.config import (
 )
 from weaviate.util import generate_uuid5, get_vector
 
+from rescueclip import cuhk
 from rescueclip.cuhk import Metadata, get_sets_new, keep_sets_containing_n_images
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
+    CUHK_PDNA_Collection,
     CollectionConfig,
     CUHK_Google_Siglip_Base_Patch16_224_Collection,
+    LIPModelProvider,
     encode_image,
-    load_inference_clip_model,
+    load_embedding_model,
     torch_device,
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
@@ -81,13 +84,21 @@ def embed_cuhk_dataset(
 
     # Filter: keep sets with exactly 4 images
     sets = keep_sets_containing_n_images(sets, 4)
+    if collection_config.model_config.provider == LIPModelProvider.PDNA:
+        hashes_file = Path(os.environ["PDNA_HASHES_FILE"])
+        set_lookup_map = {filename: set_id for set_id, file_list in sets.items() for filename in file_list}
+        filename_to_hash_map, missing_filenames = cuhk.get_pdna_hashes(
+            hashes_file, include_only=set(set_lookup_map.keys())
+        )
+        sets = cuhk.eliminate_sets_containing_files(filename_to_hash_map, missing_filenames, sets)
+        set_lookup_map = {filename: set_id for set_id, file_list in sets.items() for filename in file_list}
 
     # Loading the CLIP model
     # Get the torch device
     device = torch_device()
 
     # Load the model into memory
-    m = load_inference_clip_model(collection_config.model_config, device)
+    m = load_embedding_model(collection_config.model_config, device)
 
     # Ingesting
     collection = create_or_get_collection(client, collection_config.name)
@@ -124,6 +135,6 @@ if __name__ == "__main__":
     load_dotenv()
     INPUT_FOLDER = Path(os.environ["CUHK_PEDES_DATASET"]) / "out"
     STOPS_FILE = Path("/scratch3/gbiss/images/CUHK-PEDES-OFFICIAL/caption_all.json")
-    collection_config = CUHK_Google_Siglip_Base_Patch16_224_Collection
+    collection_config = CUHK_PDNA_Collection
     with WeaviateClientEnsureReady() as client:
         embed_cuhk_dataset(client, INPUT_FOLDER, STOPS_FILE, collection_config)

@@ -12,7 +12,7 @@ from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
     CUHK_Apple_Collection,
     encode_image,
-    load_inference_clip_model,
+    load_embedding_model,
     torch_device,
 )
 from rescueclip.weaviate import WeaviateClientEnsureReady
@@ -30,7 +30,7 @@ def main(client: weaviate.WeaviateClient):
     device = torch_device()
 
     # Load the model into memory
-    m = load_inference_clip_model(COLLECTION.model_config, device)
+    m = load_embedding_model(COLLECTION.model_config, device)
 
     collection = client.collections.get(COLLECTION.name)
 
