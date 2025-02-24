@@ -5,11 +5,11 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Optional, assert_never
 
-from dotenv import load_dotenv
 import open_clip
 import torch
 import torchvision
 import transformers
+from dotenv import load_dotenv
 from PIL import Image
 from torch import Tensor
 
@@ -48,6 +48,7 @@ class LIPModelConfig:
 
     def __str__(self):
         return f"({self.model_name})"
+
 
 PDNA_Model = LIPModelConfig(
     model_name="PhotoDNA",
@@ -171,9 +172,11 @@ class SiglipModel:
     model: transformers.SiglipModel
     processor: transformers.SiglipProcessor
 
+
 @dataclass
 class PhotoDNAModel:
     filename_to_hashes: FileToHashesMap
+
 
 type LIPModel = CLIPModel | SiglipModel | PhotoDNAModel
 

@@ -1,17 +1,14 @@
-
-from sqlalchemy.orm import Session
-from sqlalchemy import BigInteger, Boolean, Column, Float, String, Integer
 import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import select
+from sqlalchemy import BigInteger, Column, Float, Integer, String, select
 from sqlalchemy.dialects import sqlite
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session
 
 Base = declarative_base()
 
 BigIntegerType = BigInteger()
-BigIntegerType = BigIntegerType.with_variant(sqlite.INTEGER(), 'sqlite')
+BigIntegerType = BigIntegerType.with_variant(sqlite.INTEGER(), "sqlite")
 
 
 class ThresholdTest(Base):
@@ -24,6 +21,7 @@ class ThresholdTest(Base):
     fp = Column(Integer, unique=False, nullable=False)
     tn = Column(Integer, unique=False, nullable=False)
     fn = Column(Integer, unique=False, nullable=False)
+
 
 def try_fetch_by_field(cls, field, target, session):
     try:

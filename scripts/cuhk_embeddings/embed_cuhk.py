@@ -19,9 +19,8 @@ from rescueclip import cuhk
 from rescueclip.cuhk import Metadata, get_sets_new, keep_sets_containing_n_images
 from rescueclip.logging_config import LOGGING_CONFIG
 from rescueclip.ml_model import (
-    CUHK_PDNA_Collection,
     CollectionConfig,
-    CUHK_Google_Siglip_Base_Patch16_224_Collection,
+    CUHK_PDNA_Collection,
     LIPModelProvider,
     encode_image,
     load_embedding_model,
