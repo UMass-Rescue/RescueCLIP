@@ -14,6 +14,7 @@ from rescueclip.ml_model import (
     CLIPModel,
     PhotoDNAModel,
     SiglipModel,
+    RandomModel,
     apple_DFN5B_CLIP_ViT_H_14_384,
     load_embedding_model,
 )
@@ -67,6 +68,8 @@ def main():
         print(f"{probs[0][0]:.1%} that image 0 is '{candidate_labels[0]}'")
     elif isinstance(m, PhotoDNAModel):
         print("Use query hash or embed for a smoke test of PDNA")
+    elif isinstance(m, RandomModel):
+        print("Use query hash or embed for a smoke test of CUHK")
     else:
         assert_never(m)
 
