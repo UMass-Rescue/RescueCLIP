@@ -36,6 +36,7 @@ class LIPModelProvider(StrEnum):
     OPEN_CLIP = "open_clip"
     SIGLIP = "siglip"
     PDNA = "pdna"
+    RANDOM = "random"
 
 
 @dataclass
@@ -56,6 +57,14 @@ PDNA_Model = LIPModelConfig(
     tokenizer_model_name=None,
     weaviate_friendly_model_name="PDNA_Model",
     provider=LIPModelProvider.PDNA,
+)
+
+Random_Model = LIPModelConfig(
+    model_name="Random",
+    checkpoint_name=None,
+    tokenizer_model_name=None,
+    weaviate_friendly_model_name="Random_Model",
+    provider=LIPModelProvider.RANDOM,
 )
 
 ViT_B_32 = LIPModelConfig(
@@ -159,6 +168,12 @@ CUHK_PDNA_Collection = CollectionConfig(
     name=PDNA_Model.weaviate_friendly_model_name + "_CUHK", model_config=PDNA_Model
 )
 
+## Random
+
+CUHK_Random_Model_Collection = CollectionConfig(
+    name=Random_Model.weaviate_friendly_model_name + "_CUHK", model_config=Random_Model
+)
+
 
 @dataclass
 class CLIPModel:
@@ -177,8 +192,11 @@ class SiglipModel:
 class PhotoDNAModel:
     filename_to_hashes: FileToHashesMap
 
+@dataclass
+class RandomModel:
+    vector_dim: int
 
-type LIPModel = CLIPModel | SiglipModel | PhotoDNAModel
+type LIPModel = CLIPModel | SiglipModel | PhotoDNAModel | RandomModel
 
 
 def load_embedding_model(config: LIPModelConfig, device: str, cache_dir: Path = CACHE_DIR) -> LIPModel:
@@ -213,6 +231,8 @@ def load_embedding_model(config: LIPModelConfig, device: str, cache_dir: Path = 
             load_dotenv()
             hashes, _ = cuhk.get_pdna_hashes(Path(os.environ["PDNA_HASHES_FILE"]))
             return PhotoDNAModel(filename_to_hashes=hashes)
+        case LIPModelProvider.RANDOM:
+            return RandomModel(vector_dim=512)
         case _:
             assert_never(config.provider)
 
@@ -239,5 +259,7 @@ def encode_image(
                 return m.model.get_image_features(inputs.data["pixel_values"])
         case PhotoDNAModel():
             return torch.from_numpy(m.filename_to_hashes[str(file)]).to(device)
+        case RandomModel():
+            return torch.randn(1, m.vector_dim).to(device)
         case _:
             raise ValueError(f"Unknown model type: {type(model)}")
